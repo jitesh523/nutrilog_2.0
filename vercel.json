@@ -5,21 +5,63 @@
   "outputDirectory": "public",
   "regions": ["sin1"],
   "functions": {
-    "api/index.js": { "maxDuration": 60 }
+    "api/index.js": {
+      "maxDuration": 60
+    }
   },
   "rewrites": [
-    { "source": "/healthz", "destination": "/api/index?__route=healthz" },
-    { "source": "/api/:path*", "destination": "/api/index?__route=:path*" },
-    { "source": "/dashboard", "destination": "/dashboard.html" },
-    { "source": "/transformation", "destination": "/transformation.html" }
+    {
+      "source": "/healthz",
+      "destination": "/api/index?__route=healthz"
+    },
+    {
+      "source": "/api/:path*",
+      "destination": "/api/index?__route=:path*"
+    },
+    {
+      "source": "/dashboard",
+      "destination": "/dashboard.html"
+    },
+    {
+      "source": "/transformation",
+      "destination": "/transformation.html"
+    }
   ],
   "headers": [
-    { "source": "/manifest.webmanifest", "headers": [
-      { "key": "Content-Type", "value": "application/manifest+json; charset=utf-8" }
-    ] },
-    { "source": "/(.*)", "headers": [
-      { "key": "X-Content-Type-Options", "value": "nosniff" },
-      { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
-    ] }
+    {
+      "source": "/sw.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        },
+        {
+          "key": "Service-Worker-Allowed",
+          "value": "/"
+        }
+      ]
+    },
+    {
+      "source": "/manifest.webmanifest",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/manifest+json; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        }
+      ]
+    }
   ]
 }

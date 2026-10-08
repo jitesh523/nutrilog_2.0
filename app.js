@@ -300,7 +300,7 @@ mealForm?.addEventListener("submit", async (event) => {
   try {
     payload.description = Nutrition.describePortion(payload.description, state.portionMultiplier || 1);
     const wasEditing = Boolean(state.editingMealId);
-    await apiRequest(wasEditing ? `/api/meals/${state.editingMealId}` : "/api/meals", {
+    const savedMeal = await apiRequest(wasEditing ? `/api/meals/${state.editingMealId}` : "/api/meals", {
       method: wasEditing ? "PUT" : "POST",
       body: payload,
     });
@@ -310,7 +310,7 @@ mealForm?.addEventListener("submit", async (event) => {
     render();
     triggerHaptic([20]);
     showSection("dashboard");
-    showToast(wasEditing ? "Meal updated." : "Meal added to your log.");
+    showToast(savedMeal.queued ? "Saved on this device. Your meal will sync when connected." : wasEditing ? "Meal updated." : "Meal added to your log.");
   } catch (error) {
     analysisFeedback.textContent = error.message;
   } finally { state.mealSavePending = false; saveButton.disabled = !isEditableDate(state.selectedDate); }
@@ -439,6 +439,7 @@ function renderAuthenticatedApp() {
   render();
 
   initPullToRefresh();
+  window.OfflineMeals?.sync();
 }
 
 function renderLoggedOut() {
@@ -478,6 +479,8 @@ function render() {
   renderStreakWidget();
   renderWeeklyChart();
   renderProduct();
+  window.renderUpgrades?.();
+  window.OfflineMeals?.draw();
   window.refreshAiContext?.();
 }
 
@@ -933,12 +936,15 @@ function updateAuthMode(mode) {
 }
 
 async function apiRequest(path, options = {}) {
+  return window.OfflineMeals ? OfflineMeals.request(path,options,networkApiRequest) : networkApiRequest(path,options);
+}
+async function networkApiRequest(path, options = {}) {
   const config = {
     method: options.method || "GET",
     headers: {},
   };
 
-  const token = getSessionToken();
+  const token = options.sessionToken ?? getSessionToken();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -970,6 +976,7 @@ function setSessionToken(token) {
 }
 
 function clearSessionToken() {
+  window.OfflineMeals?.forget().catch(()=>{});
   localStorage.removeItem(CLIENT_SESSION_KEY);
   sessionStorage.removeItem(CLIENT_SESSION_KEY);
 }

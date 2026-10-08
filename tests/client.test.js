@@ -16,7 +16,9 @@ test('client flow: recovery screen, household portions, edit/reuse, plan wizard,
   const root=path.resolve(__dirname,'..'),temp=fs.mkdtempSync(path.join(os.tmpdir(),'nutrilog-client-'));
   const socket=net.createServer();socket.listen(0,'127.0.0.1');await once(socket,'listening');const port=socket.address().port;await new Promise(r=>socket.close(r));
   const stub=path.join(temp,'provider.cjs');
-  fs.writeFileSync(stub,`global.fetch=async()=>new Response(JSON.stringify({choices:[{message:{content:JSON.stringify({reply:'Try a bowl of dal with your lunch. <script>bad()</script>'})}}]}));`);
+  fs.writeFileSync(stub,`global.fetch=async(url,req)=>{const body=JSON.parse(req.body),system=body.messages[0].content;
+    const value=system.includes('Estimate nutrition') ? {items:[{food:'Dal',grams:150,calories:200,protein:12,carbs:25,fat:6}],notes:'Approximate.'} : system.includes('exactly the last seven') ? {summary:'A logged start.',win:'You logged.',focus:'Keep logging.',nextStep:'Try dal.'} : {reply:'Try a bowl of dal with your lunch. <script>bad()</script>'};
+    return new Response(JSON.stringify({choices:[{message:{content:JSON.stringify(value)}}]}));};`);
   const server=spawn(process.execPath,['--require',stub,'server.js'],{cwd:root,env:{...process.env,PORT:String(port),HOST:'127.0.0.1',DATA_DIR:temp,DATABASE_URL:'',POSTGRES_URL:'',VERCEL:'',GROQ_API_KEY:'fake',ADMIN_EMAIL:'nobody@example.test'},stdio:['ignore','pipe','pipe']});
   t.after(async()=>{if(server.exitCode===null){server.kill();await once(server,'exit');}fs.rmSync(temp,{recursive:true,force:true});});
   await new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(new Error('Server startup timeout')),5000);server.stdout.once('data',()=>{clearTimeout(timer);resolve();});});
@@ -25,13 +27,16 @@ test('client flow: recovery screen, household portions, edit/reuse, plan wizard,
     const virtualConsole=new VirtualConsole();virtualConsole.on('jsdomError',error=>{if(!/navigation/.test(error.message))errors.push(error.message);});
     const dom=new JSDOM(fs.readFileSync(path.join(root,file),'utf8'),{url:base+(file==='dashboard.html'?'/dashboard':'/'),runScripts:'outside-only',pretendToBeVisual:true,virtualConsole});
     t.after(()=>dom.window.close());
-    const w=dom.window;w.fetch=(route,options)=>fetch(base+route,options);
+    const w=dom.window;w.TextDecoder=TextDecoder;w.TextEncoder=TextEncoder;
+    w.indexedDB=new (require('fake-indexeddb').IDBFactory)();Object.defineProperty(w.crypto,'subtle',{value:require('node:crypto').webcrypto.subtle});
+    w.HTMLDialogElement.prototype.showModal=function(){this.open=true;};w.HTMLDialogElement.prototype.close=function(){this.open=false;};
+    w.fetch=(route,options)=>fetch(base+route,options);
     const phoneMedia=new w.EventTarget();phoneMedia.matches=phone;
     w.matchMedia=query=>query.includes('max-width: 600px')?phoneMedia:{matches:false};
     const viewport=new w.EventTarget();viewport.height=844;viewport.offsetTop=0;Object.defineProperty(w,'visualViewport',{value:viewport});
     w.scrollTo=(options)=>{if(options?.behavior && !['auto','smooth'].includes(options.behavior))throw new TypeError('Unsupported ScrollBehavior');};w.structuredClone=structuredClone;
     if(token)w.localStorage.setItem('diet-session-token-v1',token);
-    const files=file==='dashboard.html'?['nutrition.js','planner.js','app.js','product.js','ai-client.js']:['app.js','product.js'];
+    const files=file==='dashboard.html'?['nutrition.js','planner.js','offline.js','app.js','product.js','ai-client.js','upgrades-client.js']:['offline.js','app.js','product.js'];
     w.eval(files.map(f=>fs.readFileSync(path.join(root,f),'utf8')).join('\n')+'\nwindow.__test={get state(){return state;},analyzeMealText,showSection,loadDashboardData,render};');
     return {w,viewport,phoneMedia,q:s=>w.document.querySelector(s),input(s,value){const el=w.document.querySelector(s);el.value=value;el.dispatchEvent(new w.Event('input',{bubbles:true}));},submit(s){w.document.querySelector(s).dispatchEvent(new w.Event('submit',{bubbles:true,cancelable:true}));}};
   }
@@ -76,6 +81,12 @@ test('client flow: recovery screen, household portions, edit/reuse, plan wizard,
   app.input('#weight-date','2020-01-01');app.input('#weight-kg','78');app.submit('#weight-form');await eventually(()=>w.__test.state.weights.length===2,'Second check-in should save');assert.ok(q('.weight-chart'));
   assert.match(q('#progress-stats').textContent,/1\/7 days/);assert.match(q('#weekly-chart').textContent,/Not logged/);
   await w.__test.loadDashboardData();w.__test.render();assert.equal(w.__test.state.profile.displayName,'Test person');assert.equal(w.__test.state.plan.goal,'cutting');
+  w.__test.showSection('add-meal');app.input('#template-name','Training day');q('#save-template').click();
+  await eventually(()=>q('#template-list').textContent.includes('Training day'),'Day template should be saved');
+  const beforeCopy=w.__test.state.meals.length;q('#preview-day').click();await eventually(()=>q('.upgrade-dialog').open,'Copy preview opens');
+  assert.equal(w.__test.state.meals.length,beforeCopy,'Preview must not save automatically');q('#apply-upgrade').click();
+  await eventually(()=>w.__test.state.meals.length===beforeCopy*2,'Applying copies the day once');
+  w.__test.showSection('progress');q('#generate-weekly').click();await eventually(()=>q('#weekly-status').textContent==='Saved to your account.','Weekly review should render and persist');
   assert.equal(q('#coach-widget').classList.contains('app-hidden'),true);
   assert.equal(q('#coach-launcher').classList.contains('app-hidden'),false);
   q('#coach-launcher').click();
@@ -96,6 +107,12 @@ test('client flow: recovery screen, household portions, edit/reuse, plan wizard,
   q('#coach-launcher').click();assert.equal(q('#coach-launcher').classList.contains('has-reply'),false);
   assert.equal(q('#chat-messages').querySelector('script'),null,'AI text must never execute HTML');
   assert.equal(q('#chat-input').value,'');
+  q('.chat-draft-btn').click();await eventually(()=>q('.upgrade-dialog').open,'Coach meal draft should be reviewed');
+  const draftCount=w.__test.state.meals.length,portion=q('.estimate-row [data-value="grams"]');portion.value='300';portion.dispatchEvent(new w.Event('input',{bubbles:true}));
+  assert.equal(q('.estimate-row [data-value="protein"]').value,'24','Changing a portion scales its nutrition');q('#apply-upgrade').click();
+  await eventually(()=>q('#meal-name').value==='Dal' && !q('.upgrade-dialog').open,'Reviewed estimate goes into the meal editor');
+  assert.equal(q('#meal-protein').value,'24');assert.equal(w.__test.state.meals.length,draftCount,'Applying a draft must not log a meal');
+  q('#coach-launcher').click();
   app.input('#chat-input','How much dal?');app.submit('#chat-form');await eventually(()=>q('#chat-messages').querySelectorAll('.chat-message').length===4 && !q('#chat-send').disabled,'Follow-up should preserve turns');
   const reloaded=client('dashboard.html',login.token);
   await eventually(()=>reloaded.q('#chat-messages').querySelectorAll('.chat-message').length===4,'Chat should survive page reload');

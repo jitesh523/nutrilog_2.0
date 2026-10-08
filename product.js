@@ -48,7 +48,7 @@ function renderQuickMeals() {
       const log=document.createElement('button'); log.type='button'; log.className='ghost-btn'; log.textContent='+ Log'; log.setAttribute('aria-label',`Log ${meal.name} for today`);
       log.onclick=async()=>{ log.disabled=true; try {
         const payload={...meal,date:getTodayDateKey(),type:getSmartMealType(),source:'saved-meal'};
-        await apiRequest('/api/meals',{method:'POST',body:payload}); state.selectedDate=getTodayDateKey(); await loadDashboardData(); render(); showToast('Meal logged for today.');
+        const saved=await apiRequest('/api/meals',{method:'POST',body:payload}); state.selectedDate=getTodayDateKey(); await loadDashboardData(); render(); showToast(saved.queued ? 'Saved on this device. Waiting to sync.' : 'Meal logged for today.');
       } catch(error) { showToast(error.message); } finally { log.disabled=false; } };
       actions.append(use,log);
       if(favorite) { const remove=document.createElement('button'); remove.type='button'; remove.className='text-btn'; remove.textContent='×'; remove.setAttribute('aria-label',`Remove ${meal.name} from favourites`); remove.onclick=async()=>{ try { await apiRequest(`/api/favorites/${meal.id}`,{method:'DELETE'}); await loadProductData(); render(); } catch(error){showToast(error.message);} }; actions.append(remove); }
@@ -176,7 +176,7 @@ if(IS_DASHBOARD_PAGE) {
   });
   $product('#export-data-btn').onclick=async()=>{try{downloadJson(await apiRequest('/api/account/export'),`nutrilog-export-${getTodayDateKey()}.json`);$product('#export-feedback').textContent='Export downloaded.';}catch(error){$product('#export-feedback').textContent=error.message;}};
   $product('#delete-account-form').onsubmit=e=>submitProductForm(e,$product('#delete-feedback'),async()=>{
-    await apiRequest('/api/account',{method:'DELETE',body:{currentPassword:$product('#delete-password').value,confirmEmail:$product('#delete-email').value}});clearSessionToken();resetClientState();window.location.href='/';
+    await apiRequest('/api/account',{method:'DELETE',body:{currentPassword:$product('#delete-password').value,confirmEmail:$product('#delete-email').value}});await window.OfflineMeals?.deleteAccountData();clearSessionToken();resetClientState();window.location.href='/';
   });
   $product('#dismiss-plan-btn').onclick=()=>{localStorage.removeItem('nutrilog-plan-v1');render();};
   $product('#import-plan-btn').onclick=async()=>{try{const legacy=JSON.parse(localStorage.getItem('nutrilog-plan-v1'));const response=await apiRequest('/api/plan',{method:'PUT',body:{...legacy,startDate:getTodayDateKey()}});state.plan=response.plan;state.goals=response.goals;localStorage.removeItem('nutrilog-plan-v1');hydrateGoalForm();await loadHistory();render();showToast('Plan imported and targets saved.');}catch(error){showToast(error.message);}};

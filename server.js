@@ -12,11 +12,12 @@ const storage = createStorage();
 const { dayStatus } = require("./nutrition");
 const { handleFeatureApi, InputError, validateMeal, sanitizeNutrition, issueRecoveryCode } = require("./features");
 const { handleChat } = require("./chat");
+const { handleUpgradeData, handleUpgradeAi, mealReceipt, saveReceipt } = require("./upgrades");
 const aiUsage = new Map();
 const publicFiles = new Set([
   "index.html", "dashboard.html", "transformation.html", "styles.css",
   "app.js", "nutrition.js", "product.js", "ai-client.js", "bg-images.js", "exerciser.js", "motion.js", "particles.js", "planner.js", "stars.js",
-  "manifest.webmanifest", "icons/icon.svg", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png",
+  "offline.js", "sw.js", "upgrades-client.js", "manifest.webmanifest", "icons/icon.svg", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png",
 ]);
 
 const PORT = Number(process.env.PORT) || 4000;
@@ -31,9 +32,18 @@ const defaultGoals = {
 const SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 14;
 
 async function handleRequest(request, response) {
+  const requestId = crypto.randomUUID(), started = Date.now();
+  response.setHeader("X-Request-Id", requestId);
+  response.once?.("finish", () => {
+    if (response.statusCode >= 500 || Date.now() - started > 10000) console.error(JSON.stringify({event:"request",requestId,status:response.statusCode,durationMs:Date.now()-started,route:request.url.split("?")[0].replace(/\/[a-f0-9-]{20,}/g,"/:id")}));
+  });
   try {
     const url = new URL(request.url, `http://${request.headers.host}`);
 
+    if (["/api/ai/weekly", "/api/ai/photo", "/api/ai/meal-draft"].includes(url.pathname)) {
+      await handleUpgradeAi(request, response, url, { storage, requireSession, readData, writeData, readJsonBody, sendJson, getUserTodayDateKey, buildHistory, getGoalsForDate, reserveAiUsage });
+      return;
+    }
     if (url.pathname === "/api/ai/chat") {
       await handleChat(request, response, { storage, requireSession, readData, writeData, readJsonBody, sendJson,
         getUserTodayDateKey, buildHistory, getGoalsForDate, reserveAiUsage });
@@ -49,6 +59,8 @@ async function handleRequest(request, response) {
 
     serveStatic(response, url.pathname);
   } catch (error) {
+    if(response.headersSent || !error.statusCode || error.statusCode>=500)console.error(JSON.stringify({event:"request_error",requestId,status:error.statusCode || 500}));
+    if (response.headersSent) { response.write(`data: ${JSON.stringify({type:"error",error:error.statusCode ? error.message : "The reply could not be saved. Please retry."})}\n\n`); response.end(); return; }
     if (error instanceof AiError || error instanceof StorageError || error instanceof InputError) {
       if (error.statusCode === 429) response.setHeader("Retry-After", "60");
       sendJson(response, error.statusCode, { error: error.message });
@@ -92,6 +104,7 @@ async function handleApi(request, response, url) {
   const method = request.method;
   const pathname = url.pathname;
 
+  if (await handleUpgradeData(request, response, url, { readData, writeData, readJsonBody, sendJson, requireSession, getUserTodayDateKey, syncTodayGoalSnapshot })) return;
   if (await handleFeatureApi(request, response, url, { readData, writeData, readJsonBody, sendJson, requireSession, hashPassword, getUserTodayDateKey, syncTodayGoalSnapshot })) return;
 
   if (method === "GET" && pathname === "/healthz") {
@@ -214,15 +227,20 @@ async function handleApi(request, response, url) {
     }
     const body = await readJsonBody(request);
     const today = getUserTodayDateKey(session.account);
-    if (body.date !== today) {
+    const validOfflineDate = body.offline === true && typeof body.date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(body.date) && Number.isFinite(Date.parse(body.date)) && new Date(body.date).toISOString().slice(0,10) === body.date && body.date <= today && Date.parse(today)-Date.parse(body.date) <= 30*86400000;
+    if (body.date !== today && !validOfflineDate) {
       return sendJson(response, 400, { error: "Only today's meals can be added." });
     }
 
     const meal = sanitizeMeal(body, session.user.id);
     return withDataLock(() => {
       const data = readData();
+      const receipt = mealReceipt(data, session.user.id, body.requestId, body);
+      if (receipt) return sendJson(response, 200, {meal: receipt.meals[0], replayed:true});
+      meal.requestId = body.requestId || null;
       setGoalSnapshotForDate(data, session.user.id, meal.date, data.goalsByUser[session.user.id]);
       data.meals.unshift(meal);
+      saveReceipt(data, session.user.id, body.requestId, body, [meal]);
       writeData(data);
       sendJson(response, 201, { meal });
     });
@@ -629,6 +647,9 @@ function normalizeData(data) {
 
   return {
     users,
+    templates: Array.isArray(data.templates) ? data.templates : [],
+    mealReceipts: Array.isArray(data.mealReceipts) ? data.mealReceipts : [],
+    weeklyByUser: data.weeklyByUser || {},
     profilesByUser: data.profilesByUser || {},
     chatsByUser: data.chatsByUser || {},
     plansByUser: data.plansByUser || {},

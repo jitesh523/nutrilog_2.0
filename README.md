@@ -31,13 +31,14 @@ NutriLog brings meal logging, nutrition targets, progress tracking and conversat
 | Feature | What you can do |
 | --- | --- |
 | **Daily dashboard** | Follow calories, protein, carbs and fat against your saved targets. |
-| **Flexible meal logging** | Add, edit and reuse meals, save favourites, and adjust serving sizes. |
-| **Food estimates** | Use the built-in calculator or describe a meal for an editable AI estimate. |
+| **Flexible meal logging** | Add, edit and reuse meals, copy a whole day, save day templates and adjust serving sizes. |
+| **Food estimates** | Use the food calculator, describe a meal or upload a photo; review and edit AI estimates. |
 | **Personal diet plans** | Build and save a plan, apply its targets, or set your own goals. |
-| **Progress tracking** | Review weekly logging consistency, logged-day averages and weight check-ins. |
-| **AI nutrition coach** | Discuss meals, compare food swaps and ask follow-up questions with saved history. |
+| **Progress tracking** | Review logging consistency, weight check-ins and a saved AI weekly review. |
+| **AI nutrition coach** | Stream replies, discuss food swaps and turn a coach suggestion into an editable meal draft. |
 | **Food preferences** | Save diet, cuisine, allergies, budget and cooking-time preferences for the coach. |
 | **Account controls** | Change your password, use recovery codes, export your data or delete your account. |
+| **Offline meal outbox** | Queue new meals on your device and sync to your account when connected. |
 | **Phone-friendly experience** | Use bottom navigation, a full-screen coach chat and home-screen app icons. |
 
 Missing logs are shown as **Not logged**. An unfinished day is treated as incomplete data, so progress summaries use the days you actually logged.
@@ -62,6 +63,7 @@ For AI features, add your Groq API key to `.env` before starting the server. Wit
 
 | Variable | Purpose | Required? |
 | --- | --- | --- |
+| `GROQ_VISION_MODEL` | Photo model; defaults to `qwen/qwen3.8-27b` | Optional |
 | `GROQ_API_KEY` | Server-side key for meal estimates and coaching | For AI features |
 | `GROQ_MODEL` | Groq model; defaults to `openai/gpt-oss-20b` | No |
 | `DATABASE_URL` | PostgreSQL connection string | On Vercel |
@@ -105,16 +107,26 @@ The coach uses your selected day's log and targets, saved preferences, up to sev
 
 Drafts remain when you close chat. A green dot marks a reply received while it was closed. Failed replies can be retried, and **New chat** asks for confirmation before clearing the conversation.
 
-Requests run through the backend using [Groq Chat Completions](https://console.groq.com/docs/text-chat). Account records, passwords, recovery hashes, emails and session tokens are excluded from the context assembled by the server. Meal descriptions, preferences and messages you enter are sent to Groq when relevant to an AI request. Requests require authentication, are limited to six per user per minute, and time out after 25 seconds.
+Requests run through the backend using [Groq Chat Completions](https://console.groq.com/docs/text-chat). Account records, passwords, recovery hashes, emails and session tokens are excluded from the context assembled by the server. Meal descriptions, preferences and messages you enter are sent to Groq when relevant to an AI request. Requests require authentication and are limited to six per user per minute. Structured estimates time out after 25 seconds; streamed chat allows 40 seconds. Partial replies are displayed as they arrive and saved only after generation succeeds. Retry uses the same request ID to prevent duplicate turns.
 
 Nutrition values and AI suggestions are estimates. Review portions, ingredients and allergy information; the coach does not automatically change your meals or goals.
+
+## Reviewed estimates and weekly reviews
+
+In **Add Meal**, expand **Repeat a day or use a template** to preview a logged day before copying it to today, or save its meals as a named template. Copying preserves meal types and leaves existing entries in place.
+
+Expand **Estimate a meal from a photo** to choose JPEG, PNG or WebP (up to 12 MB). The browser resizes it and re-encodes it as JPEG to remove metadata before the explicit estimate request. The server accepts images up to 600 KB. Groq's vision model is configured with `GROQ_VISION_MODEL` (default `qwen/qwen3.8-27b`). Photos are kept in memory for the request and are never stored in the database or offline cache. Food names, portions and macros can be edited; changing grams scales the item's macros. Renaming a food does not recalculate its nutrition. **Use in meal editor** prepares a draft; **Save meal** is still required.
+
+Coach replies have **Draft a meal from this**, using the same review step. In **Progress**, generate a seven-calendar-day review based on logged days, saved daily targets and preferences. Missing logs remain unknown. Reviews are saved and reused until their source data changes.
 
 ## Add NutriLog to your home screen
 
 - **iPhone:** Open the live app in Safari, then choose **Share → Add to Home Screen**.
 - **Android:** Open the live app in your browser, then choose **Install app** or **Add to Home screen**, depending on the browser.
 
-The manifest includes branded icons, a maskable icon, an Apple touch icon and standalone display settings. The app launches at the dashboard and redirects signed-out visitors to sign in. Meal syncing and AI require an internet connection; offline storage is not included.
+The manifest includes branded icons, a maskable icon, an Apple touch icon and standalone display settings. The service worker caches public app files. After signing in online and opening the dashboard once, account-scoped IndexedDB snapshots let you view previously loaded logs offline and queue new meals.
+
+Pending meals appear in a separate device outbox and do not count toward totals until synchronization succeeds. Their original dates are retained, including across midnight (up to 30 days). Reconnecting verifies the current account before syncing; retries reuse a durable request ID. Logout removes cached API views but keeps pending meals for the same account's next sign-in. Account deletion removes its local outbox. Do not use offline mode on a shared device; browser data clearing removes unsynced meals. AI, copying days, editing/deleting entries and other account changes need a connection. Offline saving is unavailable when the browser blocks IndexedDB.
 
 ## Account recovery and data
 
@@ -174,10 +186,17 @@ Optional PostgreSQL integration tests require **separate disposable test databas
 TEST_DATABASE_URL=postgresql://.../storage_test \
 TEST_API_DATABASE_URL=postgresql://.../api_test \
 TEST_CHAT_DATABASE_URL=postgresql://.../chat_test \
-TEST_FEATURE_DATABASE_URL=postgresql://.../features_test npm test
+TEST_FEATURE_DATABASE_URL=postgresql://.../features_test \
+TEST_UPGRADE_DATABASE_URL=postgresql://.../upgrades_test npm test
 ```
 
 These tests create and modify tables. Do not point them at production data.
+
+## Monitoring and encrypted backups
+
+The **Production health** GitHub Actions workflow checks the live app and database every 30 minutes and supports manual runs. Scheduled runs can be delayed by GitHub. Failure notifications follow your GitHub notification settings. Server logs record request IDs, failed/slow responses and timing; client error reports contain fixed error categories and page names only, with per-account limits. No meal text, credentials or exception stacks are sent by client monitoring.
+
+`node scripts/backup.js create /private/path/backup.nlog` creates a consistent encrypted snapshot of app state and AI quota records. Set `DATABASE_URL` and `BACKUP_KEY` (32 random bytes in base64) securely in the environment. Keep the key separate from backup copies. `node scripts/backup.js verify /private/path/backup.nlog` authenticates, decrypts and checks the snapshot; it never overwrites the live database. Backup files and keys belong outside this repository. This manual backup utility is separate from Neon's automatic point-in-time recovery settings. See the release report for what was verified.
 
 ## Deploy to Vercel
 

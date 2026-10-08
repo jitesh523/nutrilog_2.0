@@ -128,7 +128,7 @@ async function handleFeatureApi(request, response, url, helpers) {
     Object.assign(meal,validateMeal(body),{updatedAt:new Date().toISOString()}); writeData(data); sendJson(response,200,{meal}); return true;
   }
   if (route === '/api/account/export' && method === 'GET') {
-    sendJson(response,200,{exportedAt:new Date().toISOString(),account:session.user,profile:data.profilesByUser[id] || {},chat:data.chatsByUser[id] || {id:null,messages:[]},plan:data.plansByUser[id] || null,goals:data.goalsByUser[id],goalHistory:data.goalSnapshotsByUser[id],meals:data.meals.filter((m) => m.userId === id),favorites:data.favorites.filter((m) => m.userId === id),weights:data.weights.filter((w) => w.userId === id)}); return true;
+    sendJson(response,200,{templates:data.templates.filter(m=>m.userId===id),weeklyReview:data.weeklyByUser[id] || null,exportedAt:new Date().toISOString(),account:session.user,profile:data.profilesByUser[id] || {},chat:data.chatsByUser[id] || {id:null,messages:[]},plan:data.plansByUser[id] || null,goals:data.goalsByUser[id],goalHistory:data.goalSnapshotsByUser[id],meals:data.meals.filter((m) => m.userId === id),favorites:data.favorites.filter((m) => m.userId === id),weights:data.weights.filter((w) => w.userId === id)}); return true;
   }
   if (route === '/api/account/recovery' && method === 'POST') {
     verifyPassword(); const recoveryCode = issueRecoveryCode(user); writeData(data); sendJson(response,200,{recoveryCode}); return true;
@@ -142,8 +142,8 @@ async function handleFeatureApi(request, response, url, helpers) {
   if (route === '/api/account' && method === 'DELETE') {
     verifyPassword(); if (body.confirmEmail !== user.email) throw new InputError('Type your account email exactly to confirm deletion.');
     data.users = data.users.filter((u) => u.id !== id); data.sessions = data.sessions.filter((s) => s.userId !== id);
-    for (const key of ['meals','favorites','weights']) data[key] = data[key].filter((m) => m.userId !== id);
-    for (const key of ['goalsByUser','goalSnapshotsByUser','profilesByUser','plansByUser','chatsByUser']) delete data[key][id];
+    for (const key of ['meals','favorites','weights','templates','mealReceipts']) data[key] = data[key].filter((m) => m.userId !== id);
+    for (const key of ['goalsByUser','goalSnapshotsByUser','profilesByUser','plansByUser','chatsByUser','weeklyByUser']) delete data[key][id];
     data.auditEvents = data.auditEvents.filter((e) => e.email !== user.email); data.notifications = data.notifications.filter((e) => e.registeredEmail !== user.email);
     delete data.resetAttempts[crypto.createHash('sha256').update(user.email).digest('hex')];
     if (data.settings.adminUserId === id) data.settings.adminUserId = null;
