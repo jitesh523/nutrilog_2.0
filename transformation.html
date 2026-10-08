@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BREAK YOUR LIMITS — Power Transformation</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet" />
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+  <style>
+    /* ═══════════════════════════════════════════════
+       BASE
+    ════════════════════════════════════════════════ */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg:          #080812;
+      --col-l:       #0d0d1a;
+      --text:        #dde0ee;
+      --blue:        #4488ff;
+      --gold:        #ffaa20;
+      --red:         #ff3838;
+      --white-glow:  #ffffff;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 500;
+      overflow-x: hidden;
+    }
+
+    /* ═══════════════════════════════════════════════
+       SPLIT LAYOUT
+    ════════════════════════════════════════════════ */
+    .split {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Left — scrollable content */
+    .col-left {
+      flex: 1;
+      background: var(--col-l);
+      min-height: 100vh;
+      /* Tall enough for all scroll stages */
+      padding-bottom: 0;
+    }
+
+    /* Right — sticky visual panel */
+    .col-right {
+      width: 50%;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .sticky-panel {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: var(--bg);
+    }
+
+    /* ═══════════════════════════════════════════════
+       LEFT COLUMN — SECTIONS
+    ════════════════════════════════════════════════ */
+    .intro-section,
+    .stage-section,
+    .outro-section {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 80px 56px;
+    }
+
+    /* Eyebrow label */
+    .label {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.75rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--text);
+      opacity: 0.45;
+      margin-bottom: 18px;
+    }
+    .label-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* Stage accent bar */
+    .accent-bar {
+      width: 48px;
+      height: 4px;
+      border-radius: 2px;
+      margin-bottom: 20px;
+    }
+
+    /* Headings */
+    .section-title {
+      font-family: 'Black Ops One', cursive;
+      font-size: clamp(2.8rem, 4.5vw, 4.2rem);
+      line-height: 1.05;
+      margin-bottom: 22px;
+      letter-spacing: 0.02em;
+    }
+
+    .section-body {
+      font-size: 1.1rem;
+      line-height: 1.72;
+      opacity: 0.62;
+      max-width: 440px;
+      margin-bottom: 36px;
+    }
+
+    /* Stats row */
+    .stats-row {
+      display: flex;
+      gap: 28px;
+      flex-wrap: wrap;
+    }
+    .stat {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .stat-val {
+      font-family: 'Black Ops One', cursive;
+      font-size: 2.2rem;
+    }
+    .stat-lbl {
+      font-size: 0.72rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      opacity: 0.4;
+    }
+
+    /* Stage color themes */
+    .stage-rest   .accent-bar  { background: var(--blue); }
+    .stage-rest   .section-title { color: #88b8ff; }
+    .stage-rest   .stat-val    { color: var(--blue); }
+    .stage-rest   .label-dot   { background: var(--blue); }
+
+    .stage-power  .accent-bar  { background: var(--gold); }
+    .stage-power  .section-title { color: #ffd06a; }
+    .stage-power  .stat-val    { color: var(--gold); }
+    .stage-power  .label-dot   { background: var(--gold); }
+
+    .stage-ultra  .accent-bar  { background: var(--red); }
+    .stage-ultra  .section-title { color: #ff8888; }
+    .stage-ultra  .stat-val    { color: var(--red); }
+    .stage-ultra  .label-dot   { background: var(--red); }
+
+    /* Intro */
+    .intro-section .big-title {
+      font-family: 'Black Ops One', cursive;
+      font-size: clamp(3.5rem, 6vw, 5.5rem);
+      line-height: 1;
+      margin-bottom: 20px;
+    }
+    .intro-section .big-title em {
+      font-style: normal;
+      color: var(--gold);
+    }
+
+    .cta-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 30px;
+      background: var(--gold);
+      color: #080812;
+      font-family: 'Black Ops One', cursive;
+      font-size: 0.95rem;
+      letter-spacing: 0.05em;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      text-decoration: none;
+      width: fit-content;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .cta-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px #ffaa2055;
+    }
+
+    /* Outro */
+    .outro-section {
+      text-align: center;
+      align-items: center;
+    }
+    .outro-section .outro-title {
+      font-family: 'Black Ops One', cursive;
+      font-size: clamp(2.2rem, 4vw, 3.5rem);
+      color: var(--gold);
+      margin-bottom: 16px;
+    }
+
+    /* ═══════════════════════════════════════════════
+       RIGHT COLUMN — VISUAL STAGE
+    ════════════════════════════════════════════════ */
+
+    /* Background radial glow (color shifts per stage) */
+    .bg-glow {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+    /* Three pre-coloured glow layers — GSAP animates opacity only (can't tween gradients) */
+    .glow-layer {
+      position: absolute;
+      left: 50%; top: 50%;
+      transform: translate(-50%, -50%);
+      width: 420px; height: 500px;
+      border-radius: 50%;
+      filter: blur(40px);
+      pointer-events: none;
+    }
+    #glow-blue { background: radial-gradient(circle, #4488ff22 0%, transparent 70%); opacity: 0.4; }
+    #glow-gold { background: radial-gradient(circle, #ffaa2038 0%, transparent 65%); opacity: 0; }
+    #glow-red  { background: radial-gradient(circle, #ff440045 0%, transparent 60%); opacity: 0; }
+
+    /* Aura rings */
+    .aura-ring {
+      position: absolute;
+      left: 50%; top: 50%;
+      /* No CSS transform — xPercent/yPercent/scale set via gsap.set() to avoid conflict */
+      border-radius: 50%;
+      border: 2px solid transparent;
+      pointer-events: none;
+      opacity: 0;
+    }
+    #ring-1 { width: 260px; height: 360px; }
+    #ring-2 { width: 320px; height: 440px; }
+    #ring-3 { width: 380px; height: 520px; }
+
+    /* Speed/energy rays SVG */
+    #energy-rays {
+      position: absolute;
+      inset: -40px;
+      width: calc(100% + 80px);
+      height: calc(100% + 80px);
+      pointer-events: none;
+      opacity: 0;
+      z-index: 1;
+    }
+
+    /* Character container (receives shake class) */
+    #char-container {
+      position: relative;
+      width: 300px;
+      height: 500px;
+      z-index: 2;
+      flex-shrink: 0;
+    }
+
+    /* Each character layer stacked absolutely */
+    .char-layer {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .char-layer svg { width: 100%; height: 100%; }
+
+    #cl-rest  { opacity: 1; }
+    #cl-power { opacity: 0; }
+    #cl-ultra { opacity: 0; }
+
+    /* "BREAK YOUR LIMITS" overlay */
+    #anime-text {
+      position: absolute;
+      bottom: 48px;
+      left: 50%;
+      /* No CSS transform — xPercent/scale set via gsap.set() to avoid conflict */
+      transform-origin: center bottom;
+      white-space: nowrap;
+      font-family: 'Black Ops One', cursive;
+      font-size: clamp(1.1rem, 2.2vw, 1.7rem);
+      letter-spacing: 0.12em;
+      color: #fff;
+      text-shadow:
+        0 0 8px  #ffaa20,
+        0 0 20px #ffaa20,
+        0 0 50px #ff6600,
+        0 0 80px #ff3300,
+        2px 2px 0 #993300;
+      opacity: 0;
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    /* Stage progress dots */
+    .stage-dots {
+      position: fixed;
+      right: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      z-index: 200;
+    }
+    .sdot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.25);
+      transition: all 0.35s cubic-bezier(.4,0,.2,1);
+    }
+    .sdot.on {
+      background: var(--gold);
+      box-shadow: 0 0 8px var(--gold);
+      transform: scale(1.5);
+    }
+
+    /* ── Shake keyframes ── */
+    @keyframes shake-s {
+      0%,100% { translate: 0 0; }
+      25%  { translate: -2px  1px; }
+      50%  { translate:  2px -2px; }
+      75%  { translate: -1px  2px; }
+    }
+    @keyframes shake-l {
+      0%  { translate: 0 0;      rotate:  0deg; }
+      10% { translate: -4px  2px; rotate: -0.6deg; }
+      20% { translate:  4px -3px; rotate:  0.5deg; }
+      30% { translate: -3px  4px; rotate: -0.4deg; }
+      40% { translate:  5px -2px; rotate:  0.6deg; }
+      50% { translate: -4px  3px; rotate: -0.5deg; }
+      60% { translate:  3px -4px; rotate:  0.4deg; }
+      70% { translate: -5px  2px; rotate: -0.6deg; }
+      80% { translate:  3px -3px; rotate:  0.5deg; }
+      90% { translate: -2px  4px; rotate: -0.3deg; }
+     100% { translate: 0 0;       rotate:  0deg; }
+    }
+    .shake-s { animation: shake-s  0.28s infinite; }
+    .shake-l { animation: shake-l  0.14s infinite; }
+
+    /* ── Responsive ── */
+    @media (max-width: 800px) {
+      .split { flex-direction: column-reverse; }
+      .col-right { width: 100%; }
+      .sticky-panel { height: 55vw; min-height: 320px; position: relative; }
+      .col-left { min-height: unset; }
+      .intro-section, .stage-section, .outro-section { padding: 56px 28px; min-height: 80vh; }
+      .stage-dots { display: none; }
+    }
+  </style>
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="theme-color" content="#10120f" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="NutriLog" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  <link rel="icon" type="image/svg+xml" href="/icons/icon.svg" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
+</head>
+<body>
+
+<!-- ── Progress dots (fixed right edge) ── -->
+<nav class="stage-dots" aria-hidden="true">
+  <div class="sdot on"  id="dot-0"></div>
+  <div class="sdot"     id="dot-1"></div>
+  <div class="sdot"     id="dot-2"></div>
+  <div class="sdot"     id="dot-3"></div>
+</nav>
+
+<!-- ══════════════════════════════════════════════
+     SPLIT PAGE
+══════════════════════════════════════════════ -->
+<div class="split">
+
+  <!-- ── LEFT: scrollable content ── -->
+  <div class="col-left" id="scroll-col">
+
+    <!-- INTRO -->
+    <div class="intro-section">
+      <p class="label"><span class="label-dot" style="background:var(--gold)"></span>Elite Training System</p>
+      <h1 class="big-title">Train Like<br><em>A Legend.</em></h1>
+      <p class="section-body">
+        Three stages. One transformation. No ceiling. Scroll down to discover what you're truly capable of.
+      </p>
+      <a href="#stage-rest" class="cta-btn">↓ &nbsp;Begin</a>
+    </div>
+
+    <!-- STAGE 1 — REST -->
+    <section class="stage-section stage-rest" id="stage-rest">
+      <div class="accent-bar"></div>
+      <p class="label"><span class="label-dot"></span>Phase 01 · Rest State</p>
+      <h2 class="section-title">The Calm<br>Before.</h2>
+      <p class="section-body">
+        Every legend begins here — in stillness. You control your breath, centre your focus, and remind yourself exactly why you walked through that door. This is the foundation every warrior is built upon.
+      </p>
+      <div class="stats-row">
+        <div class="stat"><span class="stat-val">0%</span><span class="stat-lbl">Power Unlocked</span></div>
+        <div class="stat"><span class="stat-val">100%</span><span class="stat-lbl">Focus</span></div>
+        <div class="stat"><span class="stat-val">Day 1</span><span class="stat-lbl">The Journey</span></div>
+      </div>
+    </section>
+
+    <!-- STAGE 2 — POWER-UP -->
+    <section class="stage-section stage-power" id="stage-power">
+      <div class="accent-bar"></div>
+      <p class="label"><span class="label-dot"></span>Phase 02 · Awakening</p>
+      <h2 class="section-title">The Power<br>Awakens.</h2>
+      <p class="section-body">
+        You feel it now — heat in your chest, electricity in every muscle fibre. Your potential is tearing through its shell. The energy building inside you is not new. It was always there. You're just finally letting it out.
+      </p>
+      <div class="stats-row">
+        <div class="stat"><span class="stat-val">60%</span><span class="stat-lbl">Power Unlocked</span></div>
+        <div class="stat"><span class="stat-val">3×</span><span class="stat-lbl">Output</span></div>
+        <div class="stat"><span class="stat-val">+40kg</span><span class="stat-lbl">PR Increase</span></div>
+      </div>
+    </section>
+
+    <!-- STAGE 3 — ULTRA -->
+    <section class="stage-section stage-ultra" id="stage-ultra">
+      <div class="accent-bar"></div>
+      <p class="label"><span class="label-dot"></span>Phase 03 · Maximum Effort</p>
+      <h2 class="section-title">Break Every<br>Limit.</h2>
+      <p class="section-body">
+        This is the moment everything converges. Your body is pure energy. Your mind is an inferno. Doubt has no address here. Push beyond what you thought possible — because the only limit that ever existed was the one you believed in.
+      </p>
+      <div class="stats-row">
+        <div class="stat"><span class="stat-val">100%</span><span class="stat-lbl">Power Unlocked</span></div>
+        <div class="stat"><span class="stat-val">∞</span><span class="stat-lbl">Potential</span></div>
+        <div class="stat"><span class="stat-val">NOW</span><span class="stat-lbl">Transform</span></div>
+      </div>
+    </section>
+
+    <!-- OUTRO -->
+    <div class="outro-section">
+      <h2 class="outro-title">Your Journey Starts Today.</h2>
+      <p class="section-body" style="text-align:center">
+        Every transformation is earned. Not given. Show up, break your limits, and become the version of yourself you've only imagined.
+      </p>
+      <a href="#" class="cta-btn">Join the Program</a>
+    </div>
+
+  </div><!-- /col-left -->
+
+
+  <!-- ── RIGHT: sticky visual ── -->
+  <div class="col-right">
+    <div class="sticky-panel" id="sticky-panel">
+
+      <!-- Background radial glow (three separate layers, opacity-animated by GSAP) -->
+      <div class="bg-glow">
+        <div class="glow-layer" id="glow-blue"></div>
+        <div class="glow-layer" id="glow-gold"></div>
+        <div class="glow-layer" id="glow-red"></div>
+      </div>
+
+      <!-- Energy rays (ultra stage) -->
+      <svg id="energy-rays" viewBox="0 0 500 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Rays radiating outward from character centre (250,300) -->
+        <line x1="250" y1="300" x2="20"  y2="30"  stroke="#ffaa20" stroke-width="1.2" opacity="0.7"/>
+        <line x1="250" y1="300" x2="150" y2="0"   stroke="#ffffff" stroke-width="1.8" opacity="0.85"/>
+        <line x1="250" y1="300" x2="250" y2="0"   stroke="#ffffff" stroke-width="2.5" opacity="0.9"/>
+        <line x1="250" y1="300" x2="350" y2="0"   stroke="#ffffff" stroke-width="1.8" opacity="0.85"/>
+        <line x1="250" y1="300" x2="480" y2="30"  stroke="#ffaa20" stroke-width="1.2" opacity="0.7"/>
+        <line x1="250" y1="300" x2="520" y2="200" stroke="#ff8844" stroke-width="1"   opacity="0.6"/>
+        <line x1="250" y1="300" x2="520" y2="300" stroke="#ffaa20" stroke-width="2"   opacity="0.7"/>
+        <line x1="250" y1="300" x2="520" y2="420" stroke="#ff8844" stroke-width="1"   opacity="0.5"/>
+        <line x1="250" y1="300" x2="480" y2="580" stroke="#ffaa20" stroke-width="1.2" opacity="0.6"/>
+        <line x1="250" y1="300" x2="350" y2="620" stroke="#ff4444" stroke-width="1.5" opacity="0.7"/>
+        <line x1="250" y1="300" x2="250" y2="640" stroke="#ff4444" stroke-width="1.5" opacity="0.6"/>
+        <line x1="250" y1="300" x2="150" y2="620" stroke="#ff4444" stroke-width="1.5" opacity="0.7"/>
+        <line x1="250" y1="300" x2="20"  y2="580" stroke="#ffaa20" stroke-width="1.2" opacity="0.6"/>
+        <line x1="250" y1="300" x2="-20" y2="420" stroke="#ff8844" stroke-width="1"   opacity="0.5"/>
+        <line x1="250" y1="300" x2="-20" y2="300" stroke="#ffaa20" stroke-width="2"   opacity="0.7"/>
+        <line x1="250" y1="300" x2="-20" y2="200" stroke="#ff8844" stroke-width="1"   opacity="0.6"/>
+        <!-- Inner flash burst -->
+        <circle cx="250" cy="300" r="40" fill="white" opacity="0.06"/>
+        <circle cx="250" cy="300" r="20" fill="white" opacity="0.10"/>
+      </svg>
+
+      <!-- Aura rings (animated via GSAP) -->
+      <div class="aura-ring" id="ring-1"></div>
+      <div class="aura-ring" id="ring-2"></div>
+      <div class="aura-ring" id="ring-3"></div>
+
+      <!-- ── Character container (shake applied here) ── -->
+      <div id="char-container">
+
+        <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+             CHARACTER 1 — REST (navy/blue)
+        ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+        <div class="char-layer" id="cl-rest">
+          <svg viewBox="0 0 300 500" xmlns="http://www.w3.org/2000/svg" fill="none">
+            <!-- ── HAIR (dark, gravity-normal) ── -->
+            <path d="M108 72 Q112 30 150 26 Q188 30 192 72" fill="#18182E"/>
+            <path d="M108 72 Q100 52 108 38 Q116 54 108 72" fill="#18182E"/>
+            <path d="M124 32 Q122 12 134 8  Q136 28 124 32" fill="#18182E"/>
+            <path d="M148 26 Q148  6 160 4  Q160 24 148 26" fill="#18182E"/>
+            <path d="M168 32 Q174 14 184 18 Q180 36 168 32" fill="#18182E"/>
+            <path d="M192 72 Q200 52 192 38 Q184 54 192 72" fill="#18182E"/>
+            <!-- Side hair strands -->
+            <path d="M110 90 Q104 112 108 132" stroke="#18182E" stroke-width="9" stroke-linecap="round"/>
+            <path d="M190 90 Q196 112 192 132" stroke="#18182E" stroke-width="9" stroke-linecap="round"/>
+
+            <!-- ── HEAD ── -->
+            <ellipse cx="150" cy="84" rx="44" ry="46" fill="#F5C49E"/>
+            <!-- Jaw line -->
+            <path d="M114 98 Q108 118 150 130 Q192 118 186 98" fill="#F5C49E"/>
+
+            <!-- ── FACE ── -->
+            <!-- Eyebrow L -->
+            <path d="M120 70 Q133 65 146 70" stroke="#18182E" stroke-width="3.5" stroke-linecap="round"/>
+            <!-- Eyebrow R -->
+            <path d="M154 70 Q167 65 180 70" stroke="#18182E" stroke-width="3.5" stroke-linecap="round"/>
+            <!-- Eye L (calm blue) -->
+            <ellipse cx="133" cy="84" rx="13" ry="12" fill="white"/>
+            <ellipse cx="133" cy="85" rx="8"  ry="9"  fill="#4488CC"/>
+            <circle  cx="133" cy="85" r="5"          fill="#0A1830"/>
+            <circle  cx="130" cy="82" r="2.5"         fill="white" opacity="0.9"/>
+            <!-- Eye R (calm blue) -->
+            <ellipse cx="167" cy="84" rx="13" ry="12" fill="white"/>
+            <ellipse cx="167" cy="85" rx="8"  ry="9"  fill="#4488CC"/>
+            <circle  cx="167" cy="85" r="5"           fill="#0A1830"/>
+            <circle  cx="164" cy="82" r="2.5"          fill="white" opacity="0.9"/>
+            <!-- Top lash line -->
+            <path d="M120 78 Q133 74 146 78" stroke="#18182E" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M154 78 Q167 74 180 78" stroke="#18182E" stroke-width="2.5" stroke-linecap="round"/>
+            <!-- Nose -->
+            <path d="M146 100 Q150 108 154 100" stroke="#D4946E" stroke-width="2" stroke-linecap="round"/>
+            <!-- Calm mouth -->
+            <path d="M139 116 Q150 122 161 116" stroke="#D4946E" stroke-width="2.5" stroke-linecap="round"/>
+            <!-- Ears -->
+            <ellipse cx="108" cy="90" rx="7" ry="11" fill="#EEB88C"/>
+            <ellipse cx="192" cy="90" rx="7" ry="11" fill="#EEB88C"/>
+
+            <!-- ── NECK ── -->
+            <rect x="139" y="126" width="22" height="26" rx="6" fill="#F5C49E"/>
+
+            <!-- ── SHOULDERS ── -->
+            <ellipse cx="98"  cy="164" rx="26" ry="22" fill="#2A4878"/>
+            <ellipse cx="202" cy="164" rx="26" ry="22" fill="#2A4878"/>
+
+            <!-- ── TORSO ── -->
+            <path d="M112 156 Q150 144 188 156 L190 272 Q150 284 110 272 Z" fill="#2A4878"/>
+            <!-- Chest highlight -->
+            <path d="M120 160 Q150 150 180 160 L178 188 Q150 196 122 188 Z" fill="#3A5A94" opacity="0.55"/>
+            <!-- Pec split -->
+            <path d="M124 164 Q140 158 154 164 L152 192 Q138 198 124 192 Z" fill="#3A5A94" opacity="0.38"/>
+            <path d="M146 164 Q162 158 176 164 L174 192 Q160 198 146 192 Z" fill="#3A5A94" opacity="0.38"/>
+            <!-- Abs -->
+            <path d="M134 200 Q150 196 166 200 L165 222 Q150 226 135 222 Z" fill="#223A68" opacity="0.45"/>
+            <path d="M135 226 Q150 222 165 226 L164 248 Q150 252 136 248 Z" fill="#223A68" opacity="0.38"/>
+            <line x1="150" y1="162" x2="150" y2="268" stroke="#1E3260" stroke-width="1.5" opacity="0.4"/>
+            <!-- Waistband -->
+            <path d="M112 270 Q150 280 188 270 L188 284 Q150 294 112 284 Z" fill="#18264A"/>
+            <!-- Belt buckle -->
+            <rect x="143" y="272" width="14" height="12" rx="2.5" fill="#C49020"/>
+            <rect x="146" y="275" width="8"  height="6"  rx="1"   fill="#E8B030" opacity="0.55"/>
+
+            <!-- ── LEFT ARM (relaxed) ── -->
+            <path d="M98 152 Q85 175 83 208 Q81 228 86 252"  stroke="#2A4878" stroke-width="24" stroke-linecap="round"/>
+            <path d="M86 252 Q84 274 88 298"                  stroke="#F5C49E" stroke-width="20" stroke-linecap="round"/>
+            <!-- Left hand -->
+            <ellipse cx="90" cy="308" rx="12" ry="15" fill="#F5C49E" transform="rotate(-8 90 308)"/>
+            <path d="M82 304 Q86 318 90 322" stroke="#E0A880" stroke-width="4" stroke-linecap="round"/>
+            <path d="M89 306 Q93 320 97 324" stroke="#E0A880" stroke-width="4" stroke-linecap="round"/>
+            <path d="M97 303 Q100 316 102 320" stroke="#E0A880" stroke-width="4" stroke-linecap="round"/>
+
+            <!-- ── RIGHT ARM (relaxed) ── -->
+            <path d="M202 152 Q215 175 217 208 Q219 228 214 252" stroke="#2A4878" stroke-width="24" stroke-linecap="round"/>
+            <path d="M214 252 Q216 274 212 298"                   stroke="#F5C49E" stroke-width="20" stroke-linecap="round"/>
+            <!-- Right hand -->
+            <ellipse cx="210" cy="308" rx="12" ry="15" fill="#F5C49E" transform="rotate(8 210 308)"/>
+            <path d="M218 304 Q214 318 210 322" stroke="#E0A880" stroke-width="4" stroke-linecap="round"/>
+            <path d="M211 306 Q207 320 203 324" stroke="#E0A880" stroke-width="4" stroke-linecap="round"/>
+            <path d="M203 303 Q200 316 198 320" stroke="#E0A880" stroke-width="4" stroke-linecap="round"/>
+
+            <!-- ── LEGS ── -->
+            <path d="M114 282 Q126 385 120 478" stroke="#18264A" stroke-width="36" stroke-linecap="round"/>
+            <path d="M186 282 Q174 385 180 478" stroke="#18264A" stroke-width="36" stroke-linecap="round"/>
+            <!-- Shoes -->
+            <ellipse cx="120" cy="480" rx="22" ry="10" fill="#080818" transform="rotate(-2 120 480)"/>
+            <path d="M98 478 Q120 488 142 478" fill="#080818"/>
+            <ellipse cx="180" cy="480" rx="22" ry="10" fill="#080818" transform="rotate(2 180 480)"/>
+            <path d="M158 478 Q180 488 202 478" fill="#080818"/>
+          </svg>
+        </div><!-- /cl-rest -->
+
+
+        <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+             CHARACTER 2 — POWER-UP (gold/battle stance)
+        ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+        <div class="char-layer" id="cl-power">
+          <svg viewBox="0 0 300 500" xmlns="http://www.w3.org/2000/svg" fill="none">
+            <!-- ── HAIR (golden, floating up) ── -->
+            <!-- Energy wisps rising from head -->
+            <path d="M150 26 Q144 10 148 0  Q154 10 150 26" fill="#D4880A" opacity="0.7"/>
+            <path d="M132 28 Q124 14 126 2  Q134 14 132 28" fill="#E89A10" opacity="0.6"/>
+            <path d="M168 28 Q176 14 174 2  Q166 14 168 28" fill="#E89A10" opacity="0.6"/>
+            <!-- Main hair (pulling upward) -->
+            <path d="M108 70 Q110 38 130 22 Q150 14 170 22 Q190 38 192 70" fill="#C47A08"/>
+            <!-- Spiked hair starting to rise -->
+            <path d="M120 26 Q118  8 128 2  Q132 18 120 26" fill="#D4880A"/>
+            <path d="M140 20 Q140  0 152 -2 Q152 18 140 20" fill="#F0A020"/>
+            <path d="M162 24 Q168  6 176 8  Q170 22 162 24" fill="#D4880A"/>
+            <path d="M108 70 Q100 50 106 36 Q114 52 108 70" fill="#C47A08"/>
+            <path d="M192 70 Q200 50 194 36 Q186 52 192 70" fill="#C47A08"/>
+            <!-- Floating wisps (energy) -->
+            <path d="M126 36 Q122 20 130 14 Q132 28 126 36" fill="#FFB020" opacity="0.8"/>
+            <path d="M174 36 Q178 20 170 14 Q168 28 174 36" fill="#FFB020" opacity="0.8"/>
+
+            <!-- ── HEAD (battle tilt, determined) ── -->
+            <ellipse cx="150" cy="84" rx="44" ry="46" fill="#F5C49E"/>
+            <path d="M114 98 Q108 118 150 130 Q192 118 186 98" fill="#F5C49E"/>
+
+            <!-- ── FACE (determined) ── -->
+            <!-- Eyebrows angled down (aggressive) -->
+            <path d="M120 68 Q133 62 146 66" stroke="#18182E" stroke-width="4" stroke-linecap="round"/>
+            <path d="M154 66 Q167 62 180 68" stroke="#18182E" stroke-width="4" stroke-linecap="round"/>
+            <!-- Eyes (golden, narrowed intensity) -->
+            <ellipse cx="133" cy="84" rx="13" ry="11" fill="white"/>
+            <ellipse cx="133" cy="85" rx="8"  ry="8"  fill="#CC8810"/>
+            <circle  cx="133" cy="85" r="5"           fill="#180A00"/>
+            <circle  cx="130" cy="82" r="2.5"          fill="white" opacity="0.9"/>
+            <ellipse cx="167" cy="84" rx="13" ry="11" fill="white"/>
+            <ellipse cx="167" cy="85" rx="8"  ry="8"  fill="#CC8810"/>
+            <circle  cx="167" cy="85" r="5"           fill="#180A00"/>
+            <circle  cx="164" cy="82" r="2.5"          fill="white" opacity="0.9"/>
+            <!-- Narrowed top lash (squinting) -->
+            <path d="M120 78 Q133 73 146 77" stroke="#18182E" stroke-width="3"   stroke-linecap="round"/>
+            <path d="M154 77 Q167 73 180 78" stroke="#18182E" stroke-width="3"   stroke-linecap="round"/>
+            <!-- Gritted teeth (determined) -->
+            <path d="M140 114 Q150 120 160 114" stroke="#D4946E" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="144" y1="114" x2="144" y2="120" stroke="#D4946E" stroke-width="1.5"/>
+            <line x1="150" y1="114" x2="150" y2="120" stroke="#D4946E" stroke-width="1.5"/>
+            <line x1="156" y1="114" x2="156" y2="120" stroke="#D4946E" stroke-width="1.5"/>
+            <!-- Nose -->
+            <path d="M146 100 Q150 108 154 100" stroke="#D4946E" stroke-width="2" stroke-linecap="round"/>
+            <!-- Ears -->
+            <ellipse cx="108" cy="90" rx="7" ry="11" fill="#EEB88C"/>
+            <ellipse cx="192" cy="90" rx="7" ry="11" fill="#EEB88C"/>
+
+            <!-- ── NECK ── -->
+            <rect x="139" y="126" width="22" height="26" rx="6" fill="#F5C49E"/>
+
+            <!-- ── SHOULDERS (battle stance, squared) ── -->
+            <ellipse cx="94"  cy="162" rx="28" ry="23" fill="#C47A08"/>
+            <ellipse cx="206" cy="162" rx="28" ry="23" fill="#C47A08"/>
+
+            <!-- ── TORSO (golden outfit) ── -->
+            <path d="M108 154 Q150 140 192 154 L194 270 Q150 284 106 270 Z" fill="#C47A08"/>
+            <!-- Chest definition -->
+            <path d="M118 158 Q150 148 182 158 L180 188 Q150 196 120 188 Z" fill="#D4880A" opacity="0.7"/>
+            <path d="M122 162 Q140 155 154 162 L152 192 Q138 198 122 192 Z" fill="#E8A020" opacity="0.4"/>
+            <path d="M146 162 Q164 155 178 162 L176 192 Q162 198 146 192 Z" fill="#E8A020" opacity="0.4"/>
+            <!-- Energy cracks on outfit -->
+            <path d="M148 170 L144 185 L150 182 L146 198" stroke="#FFD060" stroke-width="1.5" opacity="0.7"/>
+            <path d="M162 166 L158 178 L163 175 L160 190" stroke="#FFD060" stroke-width="1.2" opacity="0.5"/>
+            <!-- Abs -->
+            <path d="M132 198 Q150 194 168 198 L167 222 Q150 226 133 222 Z" fill="#A86808" opacity="0.5"/>
+            <path d="M133 226 Q150 222 167 226 L166 250 Q150 254 134 250 Z" fill="#A86808" opacity="0.4"/>
+            <line x1="150" y1="160" x2="150" y2="268" stroke="#986000" stroke-width="1.5" opacity="0.45"/>
+            <!-- Waistband -->
+            <path d="M108 268 Q150 280 192 268 L192 282 Q150 294 108 282 Z" fill="#7A4804"/>
+            <rect x="143" y="270" width="14" height="12" rx="2.5" fill="#FFD040"/>
+
+            <!-- ── LEFT ARM (fist at side, slightly forward) ── -->
+            <path d="M94 150 Q80 172 76 208 Q74 228 78 252"  stroke="#C47A08" stroke-width="24" stroke-linecap="round"/>
+            <!-- Forearm turned to show forearm muscle -->
+            <path d="M78 252 Q75 274 80 298"  stroke="#F5C49E" stroke-width="21" stroke-linecap="round"/>
+            <!-- FIST (clenched) -->
+            <rect x="68" y="298" width="26" height="22" rx="6" fill="#F5C49E"/>
+            <line x1="70" y1="304" x2="93" y2="304" stroke="#D4946E" stroke-width="1.5" opacity="0.6"/>
+            <line x1="70" y1="309" x2="93" y2="309" stroke="#D4946E" stroke-width="1.5" opacity="0.6"/>
+            <line x1="70" y1="314" x2="93" y2="314" stroke="#D4946E" stroke-width="1.5" opacity="0.6"/>
+            <!-- Wristband -->
+            <rect x="74" y="294" width="22" height="8" rx="3" fill="#C47A08"/>
+
+            <!-- ── RIGHT ARM (raised, forward) ── -->
+            <!-- Upper arm angled upward/forward -->
+            <path d="M206 150 Q220 128 232 110 Q238 95 234 80" stroke="#C47A08" stroke-width="24" stroke-linecap="round"/>
+            <!-- Forearm -->
+            <path d="M234 80 Q238 65 236 50"  stroke="#F5C49E" stroke-width="20" stroke-linecap="round"/>
+            <!-- FIST raised (clenched, pointing forward) -->
+            <rect x="224" y="32" width="26" height="22" rx="6" fill="#F5C49E" transform="rotate(15 237 43)"/>
+            <line x1="225" y1="38" x2="248" y2="35" stroke="#D4946E" stroke-width="1.5" opacity="0.6"/>
+            <line x1="225" y1="43" x2="248" y2="40" stroke="#D4946E" stroke-width="1.5" opacity="0.6"/>
+            <!-- Wristband right -->
+            <rect x="228" y="62" width="16" height="8" rx="3" fill="#C47A08" transform="rotate(10 236 66)"/>
+            <!-- Energy wisps from fist -->
+            <path d="M236 30 Q244 18 240 8"  stroke="#FFB020" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+            <path d="M244 34 Q254 24 252 14" stroke="#FFD060" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+
+            <!-- ── LEGS (battle stance — feet wider) ── -->
+            <path d="M112 280 Q108 375 100 468" stroke="#7A4804" stroke-width="36" stroke-linecap="round"/>
+            <path d="M188 280 Q192 375 200 468" stroke="#7A4804" stroke-width="36" stroke-linecap="round"/>
+            <!-- Shoes -->
+            <ellipse cx="100" cy="470" rx="24" ry="11" fill="#080808" transform="rotate(-5 100 470)"/>
+            <path d="M76 468 Q100 478 124 470" fill="#080808"/>
+            <ellipse cx="200" cy="470" rx="24" ry="11" fill="#080808" transform="rotate(5 200 470)"/>
+            <path d="M176 468 Q200 478 224 470" fill="#080808"/>
+          </svg>
+        </div><!-- /cl-power -->
+
+
+        <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+             CHARACTER 3 — ULTRA (white hair, explosive stance)
+        ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+        <div class="char-layer" id="cl-ultra">
+          <svg viewBox="0 0 300 500" xmlns="http://www.w3.org/2000/svg" fill="none">
+            <!-- ── HAIR (fully spiked UP — ultra transformation) ── -->
+            <!-- Core hair base -->
+            <path d="M110 68 Q116 44 150 38 Q184 44 190 68" fill="#F0F0F8"/>
+            <!-- TALL spikes shooting upward -->
+            <path d="M118 48 Q112 20 122 -8  Q132 18 118 48" fill="#FFFFFF"/>
+            <path d="M132 40 Q128  8 140 -14 Q148 12 132 40" fill="#FFFFFF"/>
+            <path d="M150 36 Q150  4 160 -16 Q164 8  150 36" fill="#F8F8FF"/>
+            <path d="M166 40 Q172  8 160 -14 Q156 12 166 40" fill="#FFFFFF"/>
+            <path d="M180 48 Q188 20 178 -8  Q168 18 180 48" fill="#FFFFFF"/>
+            <!-- Side ultra spikes -->
+            <path d="M110 68 Q96 40  100 20 Q114 44 110 68" fill="#E8E8F8"/>
+            <path d="M190 68 Q204 40 200 20 Q186 44 190 68" fill="#E8E8F8"/>
+            <!-- Hair glow wisps -->
+            <path d="M140 16 Q136 0  142 -10 Q144 2  140 16" fill="#FFE060" opacity="0.9"/>
+            <path d="M160 16 Q164 0  158 -10 Q156 2  160 16" fill="#FFE060" opacity="0.9"/>
+            <path d="M150 10 Q150 -8 154 -18 Q156 -6 150 10" fill="#FFFFFF"  opacity="0.8"/>
+
+            <!-- ── HEAD ── -->
+            <ellipse cx="150" cy="84" rx="44" ry="46" fill="#F8D0A8"/>
+            <path d="M114 98 Q108 118 150 130 Q192 118 186 98" fill="#F8D0A8"/>
+
+            <!-- ── FACE (ULTRA — glowing eyes, intense) ── -->
+            <!-- Heavy brows (peak intensity) -->
+            <path d="M118 66 Q133 58 146 64" stroke="#18182E" stroke-width="5" stroke-linecap="round"/>
+            <path d="M154 64 Q167 58 182 66" stroke="#18182E" stroke-width="5" stroke-linecap="round"/>
+            <!-- Eyes GLOWING WHITE/GOLD (ultra power) -->
+            <ellipse cx="133" cy="84" rx="14" ry="12" fill="white"/>
+            <ellipse cx="133" cy="85" rx="9"  ry="9"  fill="#FFDD40"/>
+            <circle  cx="133" cy="85" r="5.5"          fill="#FF8800"/>
+            <!-- Glow outer ring on eye -->
+            <ellipse cx="133" cy="85" rx="14" ry="12" fill="none" stroke="#FFE060" stroke-width="1.5" opacity="0.8"/>
+            <ellipse cx="167" cy="84" rx="14" ry="12" fill="white"/>
+            <ellipse cx="167" cy="85" rx="9"  ry="9"  fill="#FFDD40"/>
+            <circle  cx="167" cy="85" r="5.5"          fill="#FF8800"/>
+            <ellipse cx="167" cy="85" rx="14" ry="12" fill="none" stroke="#FFE060" stroke-width="1.5" opacity="0.8"/>
+            <!-- Shine dots -->
+            <circle cx="129" cy="81" r="2.5" fill="white" opacity="0.9"/>
+            <circle cx="163" cy="81" r="2.5" fill="white" opacity="0.9"/>
+            <!-- Eye energy effect -->
+            <path d="M120 84 Q126 84 128 84" stroke="#FFE060" stroke-width="1.5" opacity="0.6"/>
+            <path d="M138 84 Q142 84 146 84" stroke="#FFE060" stroke-width="1.5" opacity="0.6"/>
+            <path d="M154 84 Q158 84 162 84" stroke="#FFE060" stroke-width="1.5" opacity="0.6"/>
+            <path d="M172 84 Q176 84 180 84" stroke="#FFE060" stroke-width="1.5" opacity="0.6"/>
+            <!-- Gritted scream expression -->
+            <path d="M134 114 L140 118 L150 120 L160 118 L166 114" stroke="#D4946E" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M138 118 L142 124 L150 126 L158 124 L162 118" fill="#E8C0A0" stroke="#D4946E" stroke-width="1.5"/>
+            <!-- Teeth -->
+            <line x1="142" y1="120" x2="142" y2="125" stroke="#F8F8F8" stroke-width="3" stroke-linecap="round"/>
+            <line x1="147" y1="120" x2="147" y2="126" stroke="#F8F8F8" stroke-width="3" stroke-linecap="round"/>
+            <line x1="153" y1="120" x2="153" y2="126" stroke="#F8F8F8" stroke-width="3" stroke-linecap="round"/>
+            <line x1="158" y1="120" x2="158" y2="125" stroke="#F8F8F8" stroke-width="3" stroke-linecap="round"/>
+            <!-- Nose -->
+            <path d="M145 100 Q150 109 155 100" stroke="#D4946E" stroke-width="2" stroke-linecap="round"/>
+            <!-- Energy veins on face (power strain) -->
+            <path d="M120 80 Q115 88 117 98" stroke="#FF8820" stroke-width="1" opacity="0.5"/>
+            <path d="M180 80 Q185 88 183 98" stroke="#FF8820" stroke-width="1" opacity="0.5"/>
+            <!-- Ears -->
+            <ellipse cx="108" cy="90" rx="7" ry="11" fill="#EEB88C"/>
+            <ellipse cx="192" cy="90" rx="7" ry="11" fill="#EEB88C"/>
+
+            <!-- ── NECK ── -->
+            <rect x="139" y="126" width="22" height="26" rx="6" fill="#F8D0A8"/>
+            <!-- Neck energy veins -->
+            <path d="M142 130 L141 148" stroke="#FF8820" stroke-width="1.5" opacity="0.45"/>
+            <path d="M158 130 L159 148" stroke="#FF8820" stroke-width="1.5" opacity="0.45"/>
+
+            <!-- ── SHOULDERS (explosively wide) ── -->
+            <ellipse cx="88"  cy="160" rx="30" ry="25" fill="#CC2222"/>
+            <ellipse cx="212" cy="160" rx="30" ry="25" fill="#CC2222"/>
+            <!-- Energy cracks on shoulders -->
+            <path d="M78 158 L86 148 L82 162" stroke="#FFD060" stroke-width="2" opacity="0.8"/>
+            <path d="M222 158 L214 148 L218 162" stroke="#FFD060" stroke-width="2" opacity="0.8"/>
+
+            <!-- ── TORSO (red battle outfit, energy crackling) ── -->
+            <path d="M104 152 Q150 138 196 152 L198 270 Q150 286 102 270 Z" fill="#CC2222"/>
+            <!-- Shredded outfit tears -->
+            <path d="M120 158 Q150 146 180 158 L178 186 Q150 194 122 186 Z" fill="#DD3333" opacity="0.7"/>
+            <!-- Energy cracks across torso -->
+            <path d="M148 162 L142 180 L150 176 L144 196" stroke="#FFE060" stroke-width="2"   opacity="0.9"/>
+            <path d="M162 158 L156 174 L162 170 L158 188" stroke="#FFD040" stroke-width="1.5" opacity="0.7"/>
+            <path d="M136 170 L132 182"                   stroke="#FF8840" stroke-width="1.5" opacity="0.6"/>
+            <path d="M166 175 L170 185"                   stroke="#FF8840" stroke-width="1.5" opacity="0.6"/>
+            <!-- Glowing core aura on chest -->
+            <ellipse cx="150" cy="175" rx="22" ry="18" fill="#FFDD40" opacity="0.12"/>
+            <!-- Abs -->
+            <path d="M130 196 Q150 190 170 196 L169 220 Q150 226 131 220 Z" fill="#AA1818" opacity="0.5"/>
+            <path d="M131 224 Q150 220 169 224 L168 248 Q150 252 132 248 Z" fill="#AA1818" opacity="0.4"/>
+            <line x1="150" y1="158" x2="150" y2="268" stroke="#991010" stroke-width="2" opacity="0.5"/>
+            <!-- Waistband torn -->
+            <path d="M104 268 Q150 282 196 268 L196 282 Q150 296 104 282 Z" fill="#881010"/>
+            <rect x="143" y="270" width="14" height="12" rx="2.5" fill="#FFD040"/>
+
+            <!-- ── LEFT ARM (spread wide, energy blast pose) ── -->
+            <!-- Upper arm sweeping hard left and up -->
+            <path d="M88 150 Q62 138 40 120 Q26 112 20 100" stroke="#CC2222" stroke-width="26" stroke-linecap="round"/>
+            <!-- Forearm -->
+            <path d="M20 100 Q8 90 6 76" stroke="#F8D0A8" stroke-width="22" stroke-linecap="round"/>
+            <!-- OPEN HAND blasting energy -->
+            <ellipse cx="4" cy="64" rx="16" ry="20" fill="#F8D0A8" transform="rotate(-20 4 64)"/>
+            <!-- Spread fingers -->
+            <path d="M-4 52 Q-10 38 -6 28"  stroke="#F8D0A8" stroke-width="7" stroke-linecap="round"/>
+            <path d="M4  48 Q0  34 4  24"    stroke="#F8D0A8" stroke-width="7" stroke-linecap="round"/>
+            <path d="M12 52 Q14 38 18 28"   stroke="#F8D0A8" stroke-width="7" stroke-linecap="round"/>
+            <path d="M18 62 Q24 50 28 42"   stroke="#F8D0A8" stroke-width="7" stroke-linecap="round"/>
+            <!-- Energy blast from left hand -->
+            <ellipse cx="4" cy="58" rx="24" ry="20" fill="#FFE060" opacity="0.25" transform="rotate(-20 4 58)"/>
+            <ellipse cx="4" cy="58" rx="14" ry="12" fill="#FFFFFF"  opacity="0.2"  transform="rotate(-20 4 58)"/>
+            <!-- Wristband -->
+            <rect x="4" y="84" width="20" height="10" rx="4" fill="#CC2222" transform="rotate(-20 14 89)"/>
+            <!-- Energy trail on arm -->
+            <path d="M60 136 L50 126 L64 124" stroke="#FFD060" stroke-width="1.5" opacity="0.7"/>
+
+            <!-- ── RIGHT ARM (spread wide other direction) ── -->
+            <!-- Mirror image — sweep right and up -->
+            <path d="M212 150 Q238 138 260 120 Q274 112 280 100" stroke="#CC2222" stroke-width="26" stroke-linecap="round"/>
+            <path d="M280 100 Q292 90 294 76" stroke="#F8D0A8" stroke-width="22" stroke-linecap="round"/>
+            <!-- Right open hand -->
+            <ellipse cx="296" cy="64" rx="16" ry="20" fill="#F8D0A8" transform="rotate(20 296 64)"/>
+            <path d="M304 52 Q310 38 306 28"  stroke="#F8D0A8" stroke-width="7" stroke-linecap="round"/>
+            <path d="M296 48 Q300 34 296 24"   stroke="#F8D0A8" stroke-width="7" stroke-linecap="round"/>
+            <path d="M288 52 Q286 38 282 28"  stroke="#F8D0A8" stroke-width="7" stroke-linecap="round"/>
+            <path d="M282 62 Q276 50 272 42"  stroke="#F8D0A8" stroke-width="7" stroke-linecap="round"/>
+            <!-- Right energy blast -->
+            <ellipse cx="296" cy="58" rx="24" ry="20" fill="#FFE060" opacity="0.25" transform="rotate(20 296 58)"/>
+            <ellipse cx="296" cy="58" rx="14" ry="12" fill="#FFFFFF"  opacity="0.2"  transform="rotate(20 296 58)"/>
+            <!-- Wristband right -->
+            <rect x="276" y="84" width="20" height="10" rx="4" fill="#CC2222" transform="rotate(20 286 89)"/>
+            <!-- Energy trail on right arm -->
+            <path d="M240 136 L250 126 L236 124" stroke="#FFD060" stroke-width="1.5" opacity="0.7"/>
+
+            <!-- ── LEGS (wide power stance) ── -->
+            <path d="M112 278 Q100 368  90 458" stroke="#881010" stroke-width="38" stroke-linecap="round"/>
+            <path d="M188 278 Q200 368 210 458" stroke="#881010" stroke-width="38" stroke-linecap="round"/>
+            <!-- Leg energy cracks -->
+            <path d="M106 320 L100 334 L108 330" stroke="#FFD060" stroke-width="1.5" opacity="0.65"/>
+            <path d="M194 320 L200 334 L192 330" stroke="#FFD060" stroke-width="1.5" opacity="0.65"/>
+            <!-- Shoes -->
+            <ellipse cx="90"  cy="460" rx="26" ry="12" fill="#080808" transform="rotate(-8 90 460)"/>
+            <path d="M64 458 Q90  470 116 460" fill="#080808"/>
+            <ellipse cx="210" cy="460" rx="26" ry="12" fill="#080808" transform="rotate(8 210 460)"/>
+            <path d="M184 458 Q210 470 236 460" fill="#080808"/>
+            <!-- Ground energy effect -->
+            <path d="M70 468 Q90 478 110 468"  stroke="#FFD060" stroke-width="1.2" opacity="0.5"/>
+            <path d="M190 468 Q210 478 230 468" stroke="#FFD060" stroke-width="1.2" opacity="0.5"/>
+          </svg>
+        </div><!-- /cl-ultra -->
+
+      </div><!-- /char-container -->
+
+      <!-- "BREAK YOUR LIMITS" anime subtitle -->
+      <div id="anime-text">BREAK YOUR LIMITS</div>
+
+    </div><!-- /sticky-panel -->
+  </div><!-- /col-right -->
+
+</div><!-- /split -->
+
+
+<script>
+/* ═══════════════════════════════════════════════════
+   GSAP + SCROLLTRIGGER — Scroll-driven transformation
+   ═══════════════════════════════════════════════════
+   Timeline structure (scroll progress 0 → 1):
+     0.00 – 0.22  : Stage 1  REST     (calm, no aura)
+     0.22 – 0.44  : Transition REST → POWER-UP
+     0.44 – 0.62  : Stage 2  POWER-UP (aura begins, mild shake)
+     0.62 – 0.82  : Transition POWER-UP → ULTRA
+     0.82 – 1.00  : Stage 3  ULTRA    (full aura, intense shake, subtitle)
+*/
+
+gsap.registerPlugin(ScrollTrigger);
+
+/* ── Motion-safe guard ── */
+const mm = gsap.matchMedia();
+
+mm.add("(prefers-reduced-motion: no-preference)", () => {
+
+  // ─────────────────────────────────────────────────
+  // HELPERS
+  // ─────────────────────────────────────────────────
+  const $ = (s) => document.querySelector(s);
+  const charWrap  = $('#char-container');
+  const restChar  = $('#cl-rest');
+  const powerChar = $('#cl-power');
+  const ultraChar = $('#cl-ultra');
+  const glowBlue  = $('#glow-blue');
+  const glowGold  = $('#glow-gold');
+  const glowRed   = $('#glow-red');
+  const ring1     = $('#ring-1');
+  const ring2     = $('#ring-2');
+  const ring3     = $('#ring-3');
+  const rays      = $('#energy-rays');
+  const subtitle  = $('#anime-text');
+  const dots      = document.querySelectorAll('.sdot');
+
+  // Fix aura ring centering: GSAP owns the transform, CSS has none
+  gsap.set([ring1, ring2, ring3], { xPercent: -50, yPercent: -50, scale: 0.8 });
+  // Fix subtitle centering: GSAP owns xPercent + scale, CSS has none
+  gsap.set(subtitle, { xPercent: -50, scale: 0.5, opacity: 0 });
+
+  // ─────────────────────────────────────────────────
+  // MAIN SCROLL TIMELINE
+  // scrub: 1.2  → slight smoothing behind cursor
+  // ─────────────────────────────────────────────────
+  const tl = gsap.timeline({
+    scrollTrigger: {
+      trigger : '#scroll-col',
+      start   : 'top top',
+      end     : 'bottom bottom',
+      scrub   : 1.2,
+
+      // Update progress dots in real-time
+      onUpdate: (self) => {
+        const p = self.progress;
+        dots.forEach(d => d.classList.remove('on'));
+        if      (p < 0.18) dots[0]?.classList.add('on');
+        else if (p < 0.50) dots[1]?.classList.add('on');
+        else if (p < 0.78) dots[2]?.classList.add('on');
+        else               dots[3]?.classList.add('on');
+      }
+    }
+  });
+
+  /*
+   * 16 timeline units total (each ≈ 6.25% of scroll)
+   * 0–3   : REST idle
+   * 3–7   : REST → POWER transition
+   * 7–10  : POWER stage
+   * 10–14 : POWER → ULTRA transition
+   * 14–16 : ULTRA stage (subtitle)
+   */
+
+  tl
+    // ────────────────────────────────
+    // Stage 1 — REST  (units 0–3)
+    // ────────────────────────────────
+    .set(restChar,  { opacity: 1 }, 0)
+    .set(powerChar, { opacity: 0 }, 0)
+    .set(ultraChar, { opacity: 0 }, 0)
+    .set(glowBlue,  { opacity: 0.4 }, 0)
+    .set(glowGold,  { opacity: 0 }, 0)
+    .set(glowRed,   { opacity: 0 }, 0)
+
+    // ────────────────────────────────
+    // Transition REST → POWER  (3–7)
+    // ────────────────────────────────
+    .to(restChar,  { opacity: 0, duration: 4 }, 3)
+    .to(powerChar, { opacity: 1, duration: 4 }, 3)
+
+    // Glow: fade blue out, gold in (opacity-only — gradient strings can't be tweened)
+    .to(glowBlue, { opacity: 0,   duration: 4 }, 3)
+    .to(glowGold, { opacity: 0.7, duration: 4 }, 3)
+
+    // Drop-shadow on character grows
+    .fromTo(powerChar, {
+      filter: 'drop-shadow(0 0 0px transparent)'
+    }, {
+      filter: 'drop-shadow(0 0 16px #ffaa2099) drop-shadow(0 0 40px #ff880055)',
+      duration: 4
+    }, 3)
+
+    // Ring 1 pulses in
+    .to(ring1, { opacity: 0.6, scale: 1.15, borderColor: '#ffaa2088', duration: 3 }, 4)
+
+    // ────────────────────────────────
+    // Stage 2 — POWER  (7–10)
+    // ────────────────────────────────
+    .to(ring1, { opacity: 0.9, scale: 1.35, borderColor: '#ffaa20aa', duration: 3 }, 7)
+    .to(ring2, { opacity: 0.5, scale: 1.0,  borderColor: '#ff880066', duration: 3 }, 7)
+    .to(glowGold, { opacity: 0.9, duration: 3 }, 7)
+
+    // ────────────────────────────────
+    // Transition POWER → ULTRA  (10–14)
+    // ────────────────────────────────
+    .to(powerChar, { opacity: 0, duration: 4 }, 10)
+    .to(ultraChar, { opacity: 1, duration: 4 }, 10)
+
+    // Glow: fade gold out, red in
+    .to(glowGold, { opacity: 0, duration: 4 }, 10)
+    .to(glowRed,  { opacity: 1, duration: 4 }, 10)
+
+    // Ultra character — max intensity glow
+    .fromTo(ultraChar, {
+      filter: 'drop-shadow(0 0 8px #ffaa20aa)'
+    }, {
+      filter: 'drop-shadow(0 0 30px #ffffff) drop-shadow(0 0 60px #ffaa20) drop-shadow(0 0 120px #ff3300)',
+      duration: 4
+    }, 10)
+
+    // All three rings at max
+    .to(ring1, { opacity: 1,   scale: 1.6, borderColor: '#ff4444cc', duration: 4 }, 10)
+    .to(ring2, { opacity: 0.8, scale: 1.3, borderColor: '#ffaa20aa', duration: 4 }, 10)
+    .to(ring3, { opacity: 0.5, scale: 1.0, borderColor: '#ffffff44', duration: 4 }, 10)
+
+    // Energy rays burst in
+    .to(rays, { opacity: 1, duration: 3 }, 11)
+
+    // ────────────────────────────────
+    // Stage 3 — ULTRA  (14–16)
+    // ────────────────────────────────
+    .to(subtitle, {
+      opacity: 1,
+      scale: 1,
+      duration: 2,
+      ease: 'back.out(1.4)'
+    }, 14)
+
+    .to(ring1, { scale: 1.75, duration: 2 }, 14)
+    .to(ring2, { scale: 1.50, duration: 2 }, 14)
+    .to(ring3, { scale: 1.25, duration: 2 }, 14);
+
+
+  // ─────────────────────────────────────────────────
+  // SHAKE EFFECT (CSS class driven via ScrollTrigger)
+  // Applied to #char-container, not the timeline,
+  // so it plays continuously at the right stage.
+  // ─────────────────────────────────────────────────
+
+  // Mild shake: begins when Stage 2 enters viewport
+  ScrollTrigger.create({
+    trigger : '#stage-power',
+    start   : 'top 60%',
+    end     : 'bottom top',
+    onEnter      : () => {
+      charWrap.classList.remove('shake-l');
+      charWrap.classList.add('shake-s');
+    },
+    onLeaveBack  : () => charWrap.classList.remove('shake-s'),
+    onLeave      : () => {}, // will be taken over by intense shake below
+    onEnterBack  : () => {
+      charWrap.classList.remove('shake-l');
+      charWrap.classList.add('shake-s');
+    },
+  });
+
+  // Intense shake: Stage 3 onwards
+  ScrollTrigger.create({
+    trigger : '#stage-ultra',
+    start   : 'top 60%',
+    onEnter : () => {
+      charWrap.classList.remove('shake-s');
+      charWrap.classList.add('shake-l');
+    },
+    onLeaveBack: () => {
+      charWrap.classList.remove('shake-l');
+      charWrap.classList.add('shake-s');
+    },
+  });
+
+  // Stop all shake after outro
+  ScrollTrigger.create({
+    trigger : '.outro-section',
+    start   : 'top top',
+    onEnter : () => {
+      charWrap.classList.remove('shake-s', 'shake-l');
+    },
+    onLeaveBack: () => charWrap.classList.add('shake-l'),
+  });
+
+
+  // ─────────────────────────────────────────────────
+  // RING PULSE — ambient breathing animation (on top
+  // of the scrub timeline). Uses low amplitude so it
+  // doesn't conflict with the scrub values.
+  // ─────────────────────────────────────────────────
+  gsap.to([ring1, ring2, ring3], {
+    scaleX: '+=0.04',
+    scaleY: '+=0.04',
+    duration: 1.8,
+    repeat: -1,
+    yoyo: true,
+    ease: 'sine.inOut',
+    stagger: 0.6,
+    overwrite: false,   // layered on top of scrub scale
+  });
+
+}); // end matchMedia
+
+// ─────────────────────────────────────────────────
+// REDUCED MOTION: static crossfade on section enter
+// ─────────────────────────────────────────────────
+mm.add("(prefers-reduced-motion: reduce)", () => {
+  const showChar = (id) => {
+    ['#cl-rest','#cl-power','#cl-ultra'].forEach(s => {
+      document.querySelector(s).style.opacity = s === id ? '1' : '0';
+    });
+  };
+
+  ScrollTrigger.create({
+    trigger: '#stage-power', start: 'top center',
+    onEnter    : () => showChar('#cl-power'),
+    onLeaveBack: () => showChar('#cl-rest'),
+  });
+
+  ScrollTrigger.create({
+    trigger: '#stage-ultra', start: 'top center',
+    onEnter    : () => showChar('#cl-ultra'),
+    onLeaveBack: () => showChar('#cl-power'),
+  });
+});
+</script>
+</body>
+</html>

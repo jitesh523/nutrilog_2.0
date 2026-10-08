@@ -1,0 +1,25 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "buildCommand": "npm run build",
+  "outputDirectory": "public",
+  "regions": ["sin1"],
+  "functions": {
+    "api/index.js": { "maxDuration": 60 }
+  },
+  "rewrites": [
+    { "source": "/healthz", "destination": "/api/index?__route=healthz" },
+    { "source": "/api/:path*", "destination": "/api/index?__route=:path*" },
+    { "source": "/dashboard", "destination": "/dashboard.html" },
+    { "source": "/transformation", "destination": "/transformation.html" }
+  ],
+  "headers": [
+    { "source": "/manifest.webmanifest", "headers": [
+      { "key": "Content-Type", "value": "application/manifest+json; charset=utf-8" }
+    ] },
+    { "source": "/(.*)", "headers": [
+      { "key": "X-Content-Type-Options", "value": "nosniff" },
+      { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+    ] }
+  ]
+}

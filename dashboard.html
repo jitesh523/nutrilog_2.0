@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NutriLog — Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./styles.css" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="theme-color" content="#10120f" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="NutriLog" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  <link rel="icon" type="image/svg+xml" href="/icons/icon.svg" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
+</head>
+  <body class="dashboard-page">
+
+
+    <main id="app-shell" class="app-shell">
+
+      <!-- ── Topbar ── -->
+      <section class="topbar">
+        <div class="user-indicator">
+          <div class="user-avatar" id="user-avatar" aria-hidden="true"></div>
+          <div>
+            <p class="eyebrow brand-lockup">NutriLog<span> / FUEL YOUR POTENTIAL</span></p>
+            <p id="current-user-copy" class="current-user-copy"></p>
+          </div>
+        </div>
+        <nav class="app-nav" role="navigation" aria-label="App sections">
+          <button class="nav-btn active" data-section="dashboard" type="button">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M2 11l8-8 8 8v7a1 1 0 01-1 1h-4v-4H7v4H3a1 1 0 01-1-1z"/></svg>
+            Dashboard
+          </button>
+          <button class="nav-btn" data-section="add-meal" type="button">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+            Add Meal
+          </button>
+          <button class="nav-btn" data-section="diet-plan" type="button">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/></svg>
+            Diet Plan
+          </button>
+          <button class="nav-btn" data-section="progress" type="button">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z"/><path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z"/></svg>
+            Progress
+          </button>
+        </nav>
+        <div class="topbar-actions"><button type="button" class="ghost-btn" data-open-section="settings">Settings</button><button type="button" id="logout-btn" class="ghost-btn">Log out</button></div>
+      </section>
+
+      <!-- ════════════════════════════════════
+           SECTION: Dashboard
+      ═════════════════════════════════════ -->
+      <div class="app-section active" id="section-dashboard">
+
+        <section class="hero training-hero">
+          <div class="training-hero-copy"><div class="hero-kicker"><span class="live-dot" aria-hidden="true"></span><p class="eyebrow">Your daily fuel station</p><span id="dashboard-date" class="hero-date"></span></div>
+          <h1>Fuel the work.</h1><p class="hero-description">You bring the effort. Build the habits that back it up.</p>
+          <div class="hero-actions"><button type="button" class="primary-btn" data-open-section="add-meal">Log a meal <span aria-hidden="true">↗</span></button><button type="button" class="ghost-btn" data-open-section="diet-plan">Set your targets</button></div></div>
+          <div class="hero-art" aria-hidden="true"><span class="hero-art-caption">EAT. TRAIN. RECOVER.</span><svg viewBox="0 0 400 220" fill="none"><defs><linearGradient id="plate-metal" x1="140" y1="35" x2="230" y2="200" gradientUnits="userSpaceOnUse"><stop stop-color="#50564a"/><stop offset=".5" stop-color="#20251e"/><stop offset="1" stop-color="#0b0e0a"/></linearGradient></defs><g transform="rotate(-24 200 115)"><path d="M25 115h350" stroke="#6a705e" stroke-width="13"/><path d="M125 112h150" stroke="#c8d2bc" stroke-width="4"/><rect x="79" y="59" width="25" height="112" rx="7" fill="#1a2018" stroke="#6f795e"/><rect x="105" y="34" width="36" height="162" rx="9" fill="url(#plate-metal)" stroke="#8d9a75"/><rect x="259" y="34" width="36" height="162" rx="9" fill="url(#plate-metal)" stroke="#8d9a75"/><rect x="296" y="59" width="25" height="112" rx="7" fill="#1a2018" stroke="#6f795e"/><path d="M117 51v128m154-128v128" stroke="#d7f77d" stroke-width="3"/><path d="M150 109v12m10-12v12m10-12v12m10-12v12m10-12v12m10-12v12m10-12v12m10-12v12m10-12v12m10-12v12" stroke="#858b7d" stroke-width="2"/></g></svg><span class="hero-art-bottom">BUILT ONE DAY AT A TIME <span>↗</span></span></div>
+        </section>
+
+
+
+        <section class="panel summary-panel">
+          <div class="panel-heading">
+            <div><p class="eyebrow">01 / THE NUMBERS</p><h2>Today's fuel</h2></div>
+            <p id="day-status-copy">Add meals to calculate your daily result.</p>
+          </div>
+          <div id="summary-status" class="status-pill neutral">Waiting for meals</div>
+          <div id="macro-summary" class="macro-summary"></div>
+        </section>
+
+
+        <div class="dashboard-workbench"><section class="panel meals-panel">
+          <div class="panel-heading">
+            <div><p class="eyebrow">02 / ON THE MENU</p><h2 id="meals-heading">Today's meals</h2></div>
+            <p id="meal-section-copy">Review, edit, or reuse a meal.</p>
+          </div>
+          <div id="meal-list" class="meal-list"></div>
+        </section>
+
+        <aside class="training-rail"><section class="panel coach-invite"><div><p class="eyebrow">IN YOUR CORNER</p><span class="coach-invite-symbol" aria-hidden="true">✦</span><h2>Your next move,<br>figured out.</h2><p class="helper-copy">More protein? A better pre-workout meal? Talk it through with your AI coach.</p></div><button type="button" class="primary-btn" data-open-section="coach">Chat with coach <span aria-hidden="true">↗</span></button></section>
+        <section class="training-note"><span class="eyebrow">THE DAILY MINDSET</span><p>Small habits.<br><em>Stronger days.</em></p><span>Show up. Fuel up. Keep going.</span></section></aside></div>
+
+        <div class="dashboard-extras"><div id="streak-widget" class="streak-widget app-hidden"></div><div id="plan-summary-card" class="plan-summary-card app-hidden"></div></div>
+
+      </div>
+
+
+      <!-- ════════════════════════════════════
+           SECTION: Add Meal
+      ═════════════════════════════════════ -->
+      <div class="app-section" id="section-add-meal">
+        <section class="hero section-intro"><p class="eyebrow">LOG IT. LEARN IT. BUILD ON IT.</p><h1>Fuel starts here.</h1><p class="hero-description">Post-workout plate or everyday favourite. Make it count in your log.</p></section>
+
+        <section id="usuals-panel" class="panel" aria-label="Quick meal logging">
+          <div class="panel-heading"><div><h2>Your usuals</h2><p>Use a saved meal to adjust portions, or log it straight away.</p></div></div>
+          <div class="product-grid"><div><h3>Favourites</h3><div id="favorite-list" class="quick-list"></div></div><div><h3>Recent meals</h3><div id="recent-meal-list" class="quick-list"></div></div></div>
+        </section>
+        <div id="quick-macros" class="quick-macros panel">
+          <div class="qm-item">
+            <span class="qm-label">Calories left</span>
+            <strong class="qm-val" id="qm-calories">—</strong>
+          </div>
+          <div class="qm-item">
+            <span class="qm-label">Protein left</span>
+            <strong class="qm-val" id="qm-protein">—</strong>
+          </div>
+          <div class="qm-item">
+            <span class="qm-label">Carbs left</span>
+            <strong class="qm-val" id="qm-carbs">—</strong>
+          </div>
+          <div class="qm-item">
+            <span class="qm-label">Fat left</span>
+            <strong class="qm-val" id="qm-fat">—</strong>
+          </div>
+        </div>
+
+        <section class="panel">
+          <div class="panel-heading">
+            <h2 id="meal-form-title">Log a meal</h2>
+            <p>Use familiar portions, calculate an estimate, then review and save.</p>
+          </div>
+          <form id="meal-form" class="meal-form">
+            <label>Meal name
+              <input type="text" id="meal-name" maxlength="120" placeholder="Dal, rice &amp; roti" required />
+            </label>
+            <label>Meal time
+              <select id="meal-type" required>
+                <option value="Breakfast">Breakfast</option>
+                <option value="Lunch">Lunch</option>
+                <option value="Dinner">Dinner</option>
+                <option value="Snack">Snack</option>
+                <option value="Custom">Custom</option>
+              </select>
+            </label>
+            <label class="full-span">Meal description
+              <textarea id="meal-description" rows="4" placeholder="Example: 2 rotis, 1 katori dal, 1 bowl rice"></textarea>
+            </label>
+            <div class="smart-actions full-span">
+              <button type="button" id="analyze-meal-btn" class="ghost-btn">Calculate From Foods</button>
+              <button type="button" id="ai-estimate-btn" class="ghost-btn">Estimate with AI</button>
+              <p id="analysis-feedback" class="helper-copy">Try grams, ml, cups, bowls, tbsp, tsp, pieces, glasses, or counts like eggs, bananas, and rotis.</p>
+            </div>
+            <p class="helper-copy full-span">AI estimation shares this description with Groq. Review the estimated portions and edit the values before saving.</p>
+            <div class="full-span portion-controls" aria-label="Portion size"><span>Portion:</span><button type="button" class="ghost-btn" data-portion="0.5" aria-pressed="false">½ serving</button><button type="button" class="ghost-btn" data-portion="1" aria-pressed="true">1 serving</button><button type="button" class="ghost-btn" data-portion="2" aria-pressed="false">2 servings</button><span class="helper-copy">Relative to the values you entered or calculated.</span></div>
+            <label>Calories<input type="number" id="meal-calories" min="0" step="1" required /></label>
+            <label>Protein (g)<input type="number" id="meal-protein" min="0" step="0.1" required /></label>
+            <label>Carbs (g)<input type="number" id="meal-carbs" min="0" step="0.1" required /></label>
+            <label>Fat (g)<input type="number" id="meal-fat" min="0" step="0.1" required /></label>
+            <div id="ingredient-preview" class="ingredient-preview full-span"></div>
+            <div class="full-span button-row"><button type="submit" id="save-meal-btn" class="primary-btn">Save meal</button><button type="button" id="cancel-meal-edit" class="ghost-btn app-hidden">Cancel edit</button></div>
+          </form>
+        </section>
+
+      </div>
+
+      <!-- ════════════════════════════════════
+           SECTION: Diet Plan
+      ═════════════════════════════════════ -->
+      <div class="app-section" id="section-diet-plan">
+        <section class="hero section-intro"><p class="eyebrow">A PLAN THAT FITS YOUR PACE</p><h1>Give your effort direction.</h1><p class="hero-description">Cut, build, or maintain. Set a starting point and adjust as you go.</p></section>
+
+        <div id="active-plan-display" class="panel app-hidden"></div>
+
+        <section class="panel">
+          <div class="panel-heading">
+            <div>
+              <h2>Build Your Plan</h2>
+              <p>Estimate starting targets from your stats. You can adjust them as you learn what works for you.</p>
+            </div>
+          </div>
+          <form id="plan-form" class="plan-form">
+            <fieldset class="plan-fieldset">
+              <legend>Your stats</legend>
+              <div class="plan-grid">
+                <label>Current weight (kg)<input type="number" id="plan-current-weight" min="30" max="300" step="0.1" placeholder="75" required /></label>
+                <label>Target weight (kg)<input type="number" id="plan-target-weight" min="30" max="300" step="0.1" placeholder="70" required /></label>
+                <label>Height (cm)<input type="number" id="plan-height" min="100" max="250" step="1" placeholder="175" required /></label>
+                <label>Age<input type="number" id="plan-age" min="18" max="100" step="1" placeholder="25" required /></label>
+                <label>Gender
+                  <select id="plan-gender">
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                  </select>
+                </label>
+              </div>
+            </fieldset>
+            <fieldset class="plan-fieldset">
+              <legend>Goal &amp; activity</legend>
+              <div class="plan-grid">
+                <label>Goal type
+                  <select id="plan-goal">
+                    <option value="cutting">Cutting — fat loss</option>
+                    <option value="bulking">Bulking — muscle gain</option>
+                    <option value="maintenance">Maintenance</option>
+                  </select>
+                </label>
+                <label class="full-span">Activity level
+                  <select id="plan-activity">
+                    <option value="sedentary">Sedentary (desk job, no exercise)</option>
+                    <option value="lightly_active">Lightly active (1–3 days / week)</option>
+                    <option value="moderately_active" selected>Moderately active (3–5 days / week)</option>
+                    <option value="very_active">Very active (6–7 days / week)</option>
+                    <option value="extra_active">Extra active (physical job + training)</option>
+                  </select>
+                </label>
+              </div>
+            </fieldset>
+            <fieldset class="plan-fieldset">
+              <legend>Duration</legend>
+              <div class="plan-grid">
+                <label>Duration (weeks)<input type="number" id="plan-duration" min="1" max="52" step="1" placeholder="12" /></label>
+                <label>Start date<input type="date" id="plan-start-date" readonly /></label>
+              </div>
+            </fieldset>
+
+            <div id="plan-preview" class="plan-preview app-hidden"></div>
+
+            <div class="plan-actions">
+              <button type="submit" class="primary-btn">Calculate &amp; Apply Plan</button>
+              <button type="button" id="reset-plan-btn" class="ghost-btn">Clear Plan</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="panel goals-panel">
+          <div class="panel-heading">
+            <div>
+              <h2>Daily Goals</h2>
+              <p>Daily targets are guides. Saving custom goals replaces the calculated plan; past days keep their saved targets.</p>
+            </div>
+            <div id="goals-plan-badge" class="status-pill neutral app-hidden">From plan</div>
+          </div>
+          <form id="goal-form" class="goal-grid">
+
+            <label>Calories<input type="number" id="goal-calories" min="0" step="1" required /></label>
+            <label>Protein (g)<input type="number" id="goal-protein" min="0" step="1" required /></label>
+            <label>Carbs (g)<input type="number" id="goal-carbs" min="0" step="1" required /></label>
+            <label>Fat (g)<input type="number" id="goal-fat" min="0" step="1" required /></label>
+            <button type="submit" class="primary-btn">Save Goals</button>
+          </form>
+        </section>
+
+      </div>
+
+      <!-- ════════════════════════════════════
+           SECTION: Progress
+      ═════════════════════════════════════ -->
+      <div class="app-section" id="section-progress">
+
+        <section class="hero">
+          <p class="eyebrow">THE LONG GAME</p>
+          <h1>See the work add up.</h1><p class="hero-description">Your meals, check-ins, and consistency. One day at a time.</p>
+        </section>
+
+        <div id="progress-stats" class="stats-row"></div>
+        <section class="panel" id="weekly-chart"></section>
+        <section class="panel"><div class="panel-heading"><div><h2>Weight check-ins</h2><p>Record measurements when you choose. Your actual trend is separate from plan estimates.</p></div></div>
+          <form id="weight-form" class="inline-form"><label>Date<input type="date" id="weight-date" required /></label><label>Weight (kg)<input type="number" id="weight-kg" min="20" max="400" step="0.1" placeholder="75.0" required /></label><button type="submit" class="primary-btn">Save check-in</button></form>
+          <p id="weight-feedback" class="feedback" role="status"></p><div id="weight-trend"></div><div id="weight-log"></div>
+        </section>
+
+        <section class="grid-layout date-layout">
+          <div class="panel">
+            <div class="panel-heading">
+              <div>
+                <h2>Daily Log</h2>
+                <p id="selected-date-copy">Viewing today.</p>
+              </div>
+              <div id="date-mode-pill" class="status-pill neutral">Editable</div>
+            </div>
+            <div class="date-toolbar">
+              <label>Select date<input type="date" id="selected-date" /></label>
+              <button type="button" id="jump-today-btn" class="ghost-btn">Jump To Today</button>
+            </div>
+          </div>
+
+          <aside class="panel">
+            <div class="panel-heading">
+              <h2>Recent Days</h2>
+              <p>Tap any day to review its totals.</p>
+            </div>
+            <div id="history-list" class="history-list"></div>
+          </aside>
+        </section>
+
+      </div>
+
+      <div class="app-section" id="section-settings">
+        <section class="hero"><p class="eyebrow">Your account</p><h1>Make it yours.</h1></section>
+        <section class="panel"><div class="panel-heading"><div><h2>Food preferences</h2><p>Saved to your account and used when you ask the AI coach. Check ingredients yourself when managing allergies.</p></div></div>
+          <form id="profile-form" class="plan-grid">
+            <label>Display name<input id="profile-name" maxlength="60" autocomplete="nickname" /></label>
+            <label>Diet<select id="profile-diet"><option value="no-preference">No preference</option><option value="vegetarian">Vegetarian</option><option value="vegan">Vegan</option><option value="non-vegetarian">Non-vegetarian</option><option value="pescatarian">Pescatarian</option></select></label>
+            <label>Favourite cuisines<input id="profile-cuisines" maxlength="200" placeholder="South Indian, North Indian, Mediterranean" /></label>
+            <label>Allergies &amp; foods to avoid<input id="profile-allergies" maxlength="300" placeholder="Peanuts, shellfish…" /></label>
+            <label>Meal budget<input id="profile-budget" maxlength="150" placeholder="Around ₹100 per meal" /></label>
+            <label>Cooking time (minutes)<input id="profile-time" type="number" min="5" max="180" step="1" required /></label>
+            <button type="submit" class="primary-btn">Save preferences</button><p id="profile-feedback" class="feedback" role="status"></p>
+          </form>
+        </section>
+        <div class="product-grid">
+          <section class="panel"><h2>Password &amp; recovery</h2><p class="helper-copy" id="recovery-state"></p>
+            <form id="password-form" class="form-stack"><label>Current password<input type="password" id="account-current-password" autocomplete="current-password" required maxlength="128" /></label><label>New password<input type="password" id="account-new-password" autocomplete="new-password" minlength="8" maxlength="128" required /></label><label>Confirm new password<input type="password" id="account-confirm-password" autocomplete="new-password" minlength="8" maxlength="128" required /></label><button type="submit" class="primary-btn">Update password</button></form>
+            <form id="recovery-form" class="form-stack"><p class="helper-copy">A recovery code lets you reset your password without email. Keep it somewhere private. Generating a new code replaces the old one.</p><label>Current password<input id="recovery-password" type="password" autocomplete="current-password" maxlength="128" required /></label><button class="ghost-btn" type="submit">Generate recovery code</button></form>
+            <p id="security-feedback" class="feedback" role="status"></p><div id="account-recovery-output" class="app-hidden"></div>
+          </section>
+          <div>
+            <section class="panel"><h2>Your data</h2><p class="helper-copy">Download your meals, favourites, check-ins, preferences, targets, plan and coach conversation as JSON.</p><button id="export-data-btn" class="ghost-btn" type="button">Download my data</button><p id="export-feedback" class="feedback" role="status"></p></section>
+            <details class="panel danger-zone"><summary>Delete account</summary><p class="helper-copy">Permanently removes your account and saved nutrition data. Download an export first if you want to keep a copy.</p><form id="delete-account-form" class="form-stack"><label>Type your account email<input type="email" id="delete-email" required autocomplete="off" /></label><label>Current password<input type="password" id="delete-password" required autocomplete="current-password" maxlength="128" /></label><button class="danger-btn" type="submit">Permanently delete my account</button><p id="delete-feedback" class="feedback" role="status"></p></form></details>
+          </div>
+        </div>
+        <section id="legacy-plan" class="panel app-hidden"><h2>Plan found on this browser</h2><p class="helper-copy">Older versions stored a shared plan on this browser. Import it only if it belongs to you. Importing applies its targets to your account.</p><div class="button-row"><button type="button" id="import-plan-btn" class="ghost-btn">Import as my plan</button><button type="button" id="dismiss-plan-btn" class="ghost-btn">Remove browser copy</button></div></section>
+      <!-- Admin panel (only for admins) -->
+      <section id="admin-panel" class="panel app-hidden">
+        <div class="panel-heading">
+          <div>
+            <h2>Admin Activity</h2>
+            <p>Registration alerts and login history for the app owner.</p>
+          </div>
+          <div id="admin-mail-copy" class="status-pill neutral">Local notification mode</div>
+        </div>
+        <div class="grid-layout admin-layout">
+          <div>
+            <h3 class="admin-title">New Registration Alerts</h3>
+            <div id="notification-list" class="history-list"></div>
+          </div>
+          <div>
+            <h3 class="admin-title">Auth Activity Log</h3>
+            <div id="audit-log-list" class="history-list"></div>
+          </div>
+        </div>
+      </section>
+
+      </div>
+
+    </main>
+
+    <button type="button" id="coach-launcher" class="coach-launcher app-hidden" aria-label="Open nutrition coach chat" aria-controls="coach-widget" aria-expanded="false"><svg class="coach-mascot" viewBox="0 0 80 86" fill="none" aria-hidden="true">
+        <defs><linearGradient id="coach-blue" x1="18" y1="8" x2="66" y2="75" gradientUnits="userSpaceOnUse"><stop stop-color="#8cd6ff"/><stop offset="1" stop-color="#5267ff"/></linearGradient></defs>
+        <ellipse class="coach-shadow" cx="40" cy="81" rx="23" ry="3" fill="#000" opacity=".22"/>
+        <g class="coach-body">
+          <path d="M26 73v7m28-7v7" stroke="#697dff" stroke-width="9" stroke-linecap="round"/>
+          <rect x="20" y="49" width="40" height="27" rx="12" fill="url(#coach-blue)"/>
+          <path d="M18 55l-5 11" stroke="#89b9ff" stroke-width="8" stroke-linecap="round"/>
+          <path class="coach-wave" d="M62 55l5 11" stroke="#89b9ff" stroke-width="8" stroke-linecap="round"/>
+          <path class="coach-chest" d="M35 62h10" stroke="#e1f5ff" stroke-width="3" stroke-linecap="round"/>
+          <g class="coach-head">
+            <path d="M40 12V5" stroke="#8cd6ff" stroke-width="3" stroke-linecap="round"/>
+            <circle class="coach-antenna" cx="40" cy="5" r="3" fill="#d5f6ff"/>
+            <rect x="9" y="12" width="62" height="44" rx="19" fill="url(#coach-blue)"/>
+            <path d="M23 17h17" stroke="#d5f6ff" stroke-width="2" stroke-linecap="round" opacity=".5"/>
+            <rect x="17" y="22" width="46" height="25" rx="11" fill="#172454"/>
+            <g class="coach-eyes"><rect x="26" y="29" width="5" height="9" rx="2.5" fill="#a9f1ff"/><rect x="49" y="29" width="5" height="9" rx="2.5" fill="#a9f1ff"/></g>
+            <path d="M36 39q4 4 8 0" stroke="#a9f1ff" stroke-width="2" stroke-linecap="round"/>
+          </g>
+        </g>
+      </svg><span class="coach-launcher-label">Ask coach</span></button>
+      <div id="coach-widget" class="coach-widget app-hidden" role="dialog" aria-modal="false" aria-labelledby="chat-heading">
+        <section class="panel chat-panel" aria-labelledby="chat-heading">
+          <div class="chat-heading"><div class="coach-title"><span class="coach-header-icon" aria-hidden="true">✦</span><div><h2 id="chat-heading">NutriLog Coach</h2><p id="chat-context" class="helper-copy"></p></div></div><div class="chat-header-actions"><button type="button" id="chat-clear" class="text-btn">New chat</button><button type="button" id="chat-close" class="chat-close" aria-label="Close coach chat">×</button></div></div>
+          <details class="chat-privacy"><summary>About your coach</summary><p class="helper-copy">Uses your selected day's log, targets, food preferences and recent logged totals. Questions and recent messages are shared with Groq when you send. Your latest 60 messages are saved to your account. AI estimates can be inaccurate.</p></details>
+          <div id="chat-messages" class="chat-messages" role="log" aria-label="Conversation with your nutrition coach" aria-live="polite" aria-relevant="additions"></div>
+          <div id="chat-starters" class="chat-starters" aria-label="Ideas to ask your coach"><button type="button" class="ghost-btn" data-chat-prompt="How can I improve the meals I've logged today?">Review my meals</button><button type="button" class="ghost-btn" data-chat-prompt="What could I eat next to balance my day?">What should I eat next?</button><button type="button" class="ghost-btn" data-chat-prompt="Suggest easy protein swaps that fit my food preferences.">Easy protein swaps</button></div>
+          <p id="chat-status" class="helper-copy" role="status"></p>
+          <div id="chat-recovery" class="app-hidden"><button type="button" id="chat-retry" class="ghost-btn">Retry message</button><button type="button" id="chat-reload" class="text-btn">Reload conversation</button></div>
+          <form id="chat-form" class="chat-form"><label for="chat-input">Your message</label><textarea id="chat-input" rows="2" maxlength="2000" required placeholder="Was my lunch balanced? What could I swap?"></textarea><div class="chat-send-row"><p class="helper-copy">Enter to send · Shift + Enter for a new line</p><button type="submit" id="chat-send" class="primary-btn">Send</button></div></form>
+          <div id="chat-clear-confirm" class="app-hidden chat-clear-confirm"><p>Start fresh? This removes the saved conversation.</p><button type="button" id="chat-confirm-clear" class="danger-btn">Clear and start fresh</button><button type="button" id="chat-cancel-clear" class="ghost-btn">Keep this chat</button></div>
+        </section>
+      </div>
+
+
+    <!-- Mobile bottom navigation (shown only on small screens) -->
+    <nav class="mobile-bottom-nav" role="navigation" aria-label="App sections">
+      <div class="app-nav">
+        <button class="nav-btn active" data-section="dashboard" type="button">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path d="M2 11l8-8 8 8v7a1 1 0 01-1 1h-4v-4H7v4H3a1 1 0 01-1-1z"/></svg>
+          Dashboard
+        </button>
+        <button class="nav-btn" data-section="add-meal" type="button">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+          Add Meal
+        </button>
+        <button class="nav-btn" data-section="diet-plan" type="button">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/></svg>
+          Diet Plan
+        </button>
+        <button class="nav-btn" data-section="progress" type="button">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z"/><path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z"/></svg>
+          Progress
+        </button>
+      </div>
+    </nav>
+
+    <template id="meal-item-template">
+      <article class="meal-card">
+        <div>
+          <p class="meal-type"></p>
+          <h3 class="meal-name"></h3>
+          <p class="meal-description"></p>
+        </div>
+        <div class="meal-macros"></div>
+        <div class="meal-card-actions">
+          <button class="ghost-btn edit-btn" type="button">Edit</button><button class="ghost-btn favorite-btn" type="button">Save ★</button>
+          <button class="ghost-btn reuse-btn" type="button">Re-add</button><button class="ghost-btn discuss-btn" type="button">Ask coach</button>
+          <button class="ghost-btn delete-btn" type="button">Delete</button>
+        </div>
+      </article>
+    </template>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <script src="./nutrition.js"></script>
+    <script src="./planner.js"></script>
+    <script src="./app.js"></script>
+    <script src="./product.js"></script>
+    <script src="./ai-client.js"></script>
+
+  </body>
+</html>

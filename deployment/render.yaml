@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: diet-tracker
+    runtime: node
+    plan: free
+    buildCommand: "npm install"
+    startCommand: "npm start"
+    healthCheckPath: /healthz
+    envVars:
+      - key: NODE_VERSION
+        value: 24

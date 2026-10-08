@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NutriLog — Fuel your potential</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="theme-color" content="#10120f" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="NutriLog" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  <link rel="icon" type="image/svg+xml" href="/icons/icon.svg" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
+</head>
+<body class="auth-page">
+  <main class="auth-layout">
+    <section class="auth-intro"><a class="brand-wordmark" href="/">NutriLog<span>↗</span></a><p class="eyebrow">YOUR EFFORT. YOUR FUEL. YOUR POTENTIAL.</p><h1>Put in the work.<br><span>Fuel the<br>progress.</span></h1><p>From your first meal to your next personal best. Track your nutrition, find your rhythm, and build stronger habits.</p><div class="auth-example"><span class="auth-example-mark" aria-hidden="true">↗</span><div><span class="eyebrow">REAL FOOD. REAL ROUTINE.</span><strong>Dal &amp; roti. Chicken &amp; rice.<br>Whatever fuels your day.</strong><p>Familiar portions. Editable estimates. An AI coach in your corner.</p></div></div><div class="auth-benefits"><span>01 / TRACK YOUR FUEL</span><span>02 / BUILD CONSISTENCY</span><span>03 / SEE YOUR PROGRESS</span></div></section>
+    <section id="auth-screen" class="auth-card">
+      <div class="auth-switch button-row"><button type="button" id="show-login-btn" class="primary-btn">Log in</button><button type="button" id="show-signup-btn" class="ghost-btn">Create account</button></div>
+      <form id="login-form" class="auth-form form-stack"><div><p class="eyebrow">BACK IN THE GAME</p><h2>Ready for another day?</h2><p class="helper-copy">Your goals are waiting. Let's get into it.</p></div><label>Email<input type="email" id="login-email" autocomplete="email" required maxlength="254" placeholder="you@example.com" /></label><label>Password<input type="password" id="login-password" autocomplete="current-password" required maxlength="128" placeholder="Your password" /></label><p id="login-feedback" class="feedback" role="status"></p><button type="submit" class="primary-btn">Log in <span aria-hidden="true">↗</span></button><button type="button" id="show-reset-btn" class="text-btn">Forgot password?</button></form>
+      <form id="signup-form" class="auth-form form-stack auth-form-hidden"><div><h2>Start your daily log.</h2><p class="helper-copy">Create an account to keep your progress.</p></div><label>Email<input type="email" id="signup-email" autocomplete="email" required maxlength="254" /></label><label>Password<input type="password" id="signup-password" autocomplete="new-password" required minlength="8" maxlength="128" /><span class="helper-copy">At least 8 characters.</span></label><label>Confirm password<input type="password" id="signup-confirm-password" autocomplete="new-password" required minlength="8" maxlength="128" /></label><p id="signup-feedback" class="feedback" role="status"></p><button type="submit" class="primary-btn">Create account</button><div id="signup-recovery-output" class="app-hidden"></div></form>
+      <form id="reset-password-form" class="form-stack app-hidden"><div><h2>Reset your password.</h2><p class="helper-copy">Use the recovery code you saved when creating your account or in Settings. It can be used once.</p></div><label>Email<input type="email" id="reset-email" autocomplete="email" maxlength="254" required /></label><label>Recovery code<input id="reset-code" autocomplete="off" autocapitalize="none" spellcheck="false" required maxlength="100" /></label><label>New password<input type="password" id="reset-password" autocomplete="new-password" minlength="8" maxlength="128" required /></label><label>Confirm password<input type="password" id="reset-confirm-password" autocomplete="new-password" minlength="8" maxlength="128" required /></label><button type="submit" class="primary-btn">Reset password</button><button type="button" id="back-login-btn" class="ghost-btn">Back to log in</button><p id="reset-feedback" class="feedback" role="status"></p></form>
+      <p class="auth-footnote">Your log stays yours. Export or delete your data in Settings.</p>
+    </section>
+  </main>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="./app.js"></script><script src="./product.js"></script>
+</body>
+</html>

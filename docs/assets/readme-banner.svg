@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="360" viewBox="0 0 1280 360" role="img" aria-labelledby="title description">
+  <title id="title">NutriLog</title>
+  <desc id="description">Fuel the work. Build the habit. Charcoal and lime nutrition tracker banner with a barbell.</desc>
+  <defs>
+    <linearGradient id="background" x2="1" y2="1"><stop stop-color="#10120f"/><stop offset="1" stop-color="#20271b"/></linearGradient>
+    <linearGradient id="metal" x2="1" y2="1"><stop stop-color="#5d6852"/><stop offset=".5" stop-color="#293122"/><stop offset="1" stop-color="#141910"/></linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="#d7f77d" stroke-opacity=".05"/></pattern>
+  </defs>
+  <rect width="1280" height="360" rx="24" fill="url(#background)"/>
+  <rect width="1280" height="360" rx="24" fill="url(#grid)"/>
+  <path d="M1235 32v296" stroke="#d7f77d" stroke-width="4"/>
+  <text x="64" y="67" fill="#d7f77d" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="700" letter-spacing="4">EAT. TRAIN. RECOVER.</text>
+  <text x="60" y="151" fill="#f2f3e9" font-family="Arial,Helvetica,sans-serif" font-size="80" font-weight="800" letter-spacing="-4">NUTRILOG<tspan fill="#d7f77d">↗</tspan></text>
+  <text x="64" y="207" fill="#f2f3e9" font-family="Arial,Helvetica,sans-serif" font-size="28" font-weight="700">Fuel the work. Build the habit.</text>
+  <text x="64" y="247" fill="#a5ac9b" font-family="Arial,Helvetica,sans-serif" font-size="17">Meal tracking · Personal goals · Your AI coach</text>
+  <path d="M64 288h38" stroke="#d7f77d" stroke-width="3"/>
+  <text x="115" y="293" fill="#a5ac9b" font-family="Arial,Helvetica,sans-serif" font-size="11" letter-spacing="3">BUILT ONE DAY AT A TIME</text>
+  <circle cx="1005" cy="177" r="136" fill="#d7f77d" fill-opacity=".035" stroke="#d7f77d" stroke-opacity=".15"/>
+  <circle cx="1005" cy="177" r="110" fill="none" stroke="#d7f77d" stroke-opacity=".07" stroke-dasharray="3 9"/>
+  <g transform="rotate(-28 1005 177)">
+    <path d="M830 177h350" stroke="#78866a" stroke-width="13"/>
+    <path d="M949 175h113" stroke="#d0d8c5" stroke-width="4"/>
+    <rect x="882" y="128" width="24" height="98" rx="6" fill="#20271b" stroke="#77866a"/>
+    <rect x="909" y="104" width="34" height="146" rx="8" fill="url(#metal)" stroke="#849673"/>
+    <rect x="1067" y="104" width="34" height="146" rx="8" fill="url(#metal)" stroke="#849673"/>
+    <rect x="1104" y="128" width="24" height="98" rx="6" fill="#20271b" stroke="#77866a"/>
+    <path d="M921 120v114m158-114v114" stroke="#d7f77d" stroke-width="3"/>
+    <path d="M960 171v12m12-12v12m12-12v12m12-12v12m12-12v12m12-12v12m12-12v12m12-12v12" stroke="#87927b" stroke-width="2"/>
+  </g>
+</svg>
