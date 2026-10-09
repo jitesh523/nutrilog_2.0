@@ -12,12 +12,13 @@ const storage = createStorage();
 const { dayStatus } = require("./nutrition");
 const { handleFeatureApi, InputError, validateMeal, sanitizeNutrition, issueRecoveryCode } = require("./features");
 const { handleChat } = require("./chat");
+const { handleRoutines } = require("./routines");
 const { handleUpgradeData, handleUpgradeAi, mealReceipt, saveReceipt } = require("./upgrades");
 const aiUsage = new Map();
 const publicFiles = new Set([
   "index.html", "dashboard.html", "transformation.html", "styles.css",
   "app.js", "nutrition.js", "product.js", "ai-client.js", "bg-images.js", "exerciser.js", "motion.js", "particles.js", "planner.js", "stars.js",
-  "offline.js", "sw.js", "upgrades-client.js", "manifest.webmanifest", "icons/icon.svg", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png",
+  "offline.js", "sw.js", "upgrades-client.js", "routines-client.js", "progress.js", "manifest.webmanifest", "icons/icon.svg", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png",
 ]);
 
 const PORT = Number(process.env.PORT) || 4000;
@@ -104,6 +105,7 @@ async function handleApi(request, response, url) {
   const method = request.method;
   const pathname = url.pathname;
 
+  if (await handleRoutines(request, response, url, { readData, writeData, readJsonBody, sendJson, requireSession, getUserTodayDateKey, syncTodayGoalSnapshot })) return;
   if (await handleUpgradeData(request, response, url, { readData, writeData, readJsonBody, sendJson, requireSession, getUserTodayDateKey, syncTodayGoalSnapshot })) return;
   if (await handleFeatureApi(request, response, url, { readData, writeData, readJsonBody, sendJson, requireSession, hashPassword, getUserTodayDateKey, syncTodayGoalSnapshot })) return;
 
@@ -647,6 +649,10 @@ function normalizeData(data) {
 
   return {
     users,
+    recipes: Array.isArray(data.recipes) ? data.recipes : [],
+    menuEntries: Array.isArray(data.menuEntries) ? data.menuEntries : [],
+    shoppingByUser: data.shoppingByUser || {},
+    setupByUser: data.setupByUser || {},
     templates: Array.isArray(data.templates) ? data.templates : [],
     mealReceipts: Array.isArray(data.mealReceipts) ? data.mealReceipts : [],
     weeklyByUser: data.weeklyByUser || {},

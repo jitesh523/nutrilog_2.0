@@ -1,4 +1,4 @@
-const CACHE = "nutrilog-shell-v2";
+const CACHE = "nutrilog-shell-v3";
 const FILES = [
   "/",
   "/index.html",
@@ -12,6 +12,8 @@ const FILES = [
   "/ai-client.js",
   "/offline.js",
   "/upgrades-client.js",
+  "/routines-client.js",
+  "/progress.js",
   "/manifest.webmanifest",
   "/icons/icon-192.png",
   "/icons/icon-512.png",

@@ -455,6 +455,8 @@ function renderLoggedOut() {
 function resetClientState() {
   state.currentUser = null; window.nutrilogTimeZone = undefined;
   window.resetAiChat?.();
+  window.resetRoutines?.();
+  state.progressRange=7;
   state.goals = { ...defaultGoals };
   state.meals = [];
   state.history = [];
@@ -480,6 +482,7 @@ function render() {
   renderWeeklyChart();
   renderProduct();
   window.renderUpgrades?.();
+  window.renderRoutines?.();
   window.OfflineMeals?.draw();
   window.refreshAiContext?.();
 }
@@ -1733,7 +1736,7 @@ function initPullToRefresh() {
   const THRESHOLD = 70;
 
   document.addEventListener('touchstart', (e) => {
-    if (!e.target.closest('#coach-widget') && window.scrollY === 0 && state.activeSection === 'dashboard') {
+    if (!e.target.closest('#coach-widget, dialog, input, textarea, select, button') && window.scrollY === 0 && state.activeSection === 'dashboard') {
       startY = e.touches[0].clientY;
       pulling = true; triggered = false;
     }
@@ -1758,9 +1761,8 @@ function initPullToRefresh() {
     setTimeout(() => { indicator.style.transition = ''; }, 320);
     if (triggered) {
       triggerHaptic([20]);
-      await loadDashboardData();
-      render();
-      showToast('Refreshed.');
+      try { await loadDashboardData(); render(); showToast('Refreshed.'); }
+      catch (error) { showToast(error.message); }
     }
   });
 }
@@ -1795,23 +1797,28 @@ function syncLockedOverlay() {
 
 function addSwipeToDelete(card, onDelete) {
   if (!window.matchMedia('(pointer: coarse)').matches) return;
-  let startX = 0, dx = 0, dragging = false;
+  let startX = 0, startY = 0, dx = 0, dragging = false;
   card.addEventListener('touchstart', (e) => {
+    if (e.target.closest('button, input, textarea, select, a')) return;
     startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
     dx = 0; dragging = true;
     card.style.transition = 'none';
   }, { passive: true });
   card.addEventListener('touchmove', (e) => {
     if (!dragging) return;
     dx = e.touches[0].clientX - startX;
+    if (Math.abs(e.touches[0].clientY - startY) > Math.abs(dx)) { dragging = false; card.style.transform = ''; return; }
     if (dx < 0) card.style.transform = `translateX(${Math.max(dx, -88)}px)`;
   }, { passive: true });
   card.addEventListener('touchend', () => {
+    if (!dragging) return;
     dragging = false;
     card.style.transition = 'transform 0.32s cubic-bezier(0.25,1,0.4,1)';
     if (dx < -55) { triggerHaptic([12, 40, 12]); onDelete(); }
     else card.style.transform = '';
   });
+  card.addEventListener('touchcancel', () => { dragging = false; card.style.transform = ''; });
 }
 
 // ═══════════════════════════════════════════════════════════════════

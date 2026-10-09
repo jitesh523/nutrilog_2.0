@@ -30,11 +30,13 @@ NutriLog brings meal logging, nutrition targets, progress tracking and conversat
 
 | Feature | What you can do |
 | --- | --- |
+| **Guided setup** | Choose your focus, review daily targets, save preferences and log your first meal. |
+| **Recipes and weekly prep** | Save ingredient quantities and recipe yield, review scaled portions, plan a seven-day menu and download a shopping list. |
 | **Daily dashboard** | Follow calories, protein, carbs and fat against your saved targets. |
 | **Flexible meal logging** | Add, edit and reuse meals, copy a whole day, save day templates and adjust serving sizes. |
 | **Food estimates** | Use the food calculator, describe a meal or upload a photo; review and edit AI estimates. |
 | **Personal diet plans** | Build and save a plan, apply its targets, or set your own goals. |
-| **Progress tracking** | Review logging consistency, weight check-ins and a saved AI weekly review. |
+| **Progress tracking** | Switch between 7/30-day views, compare logged-day averages, record weight check-ins and save an AI weekly review. |
 | **AI nutrition coach** | Stream replies, discuss food swaps and turn a coach suggestion into an editable meal draft. |
 | **Food preferences** | Save diet, cuisine, allergies, budget and cooking-time preferences for the coach. |
 | **Account controls** | Change your password, use recovery codes, export your data or delete your account. |
@@ -78,10 +80,11 @@ Keep credentials in `.env` or your hosting provider's environment settings. Comm
 ## Your first session
 
 1. **Create an account** and save your one-time recovery code privately.
-2. **Set your targets** in Diet Plan, or save custom calorie and macro goals.
-3. **Log a meal** using the calculator, manual values or an AI estimate. Review portions before saving.
-4. **Ask the coach** about that meal or an easy improvement for your next one.
-5. **Build consistency** by returning to your log and adding weight check-ins when useful.
+2. **Start guided setup** from the dashboard to review your focus, targets and food preferences. It saves to your account, and completes after your first logged meal. Reopen it from Settings.
+3. **Set your targets** in Diet Plan, or save custom calorie and macro goals.
+4. **Log a meal** using the calculator, manual values or an AI estimate. Review portions before saving.
+5. **Ask the coach** about that meal or an easy improvement for your next one.
+6. **Build consistency** by returning to your log and adding weight check-ins when useful.
 
 Meals, plans, preferences, goals and check-ins are saved to your account. Local accounts and data are separate from the hosted app.
 
@@ -118,6 +121,16 @@ In **Add Meal**, expand **Repeat a day or use a template** to preview a logged d
 Expand **Estimate a meal from a photo** to choose JPEG, PNG or WebP (up to 12 MB). The browser resizes it and re-encodes it as JPEG to remove metadata before the explicit estimate request. The server accepts images up to 600 KB. Groq's vision model is configured with `GROQ_VISION_MODEL` (default `qwen/qwen3.8-27b`). Photos are kept in memory for the request and are never stored in the database or offline cache. Food names, portions and macros can be edited; changing grams scales the item's macros. Renaming a food does not recalculate its nutrition. **Use in meal editor** prepares a draft; **Save meal** is still required.
 
 Coach replies have **Draft a meal from this**, using the same review step. In **Progress**, generate a seven-calendar-day review based on logged days, saved daily targets and preferences. Missing logs remain unknown. Reviews are saved and reused until their source data changes.
+
+## Recipes, weekly menus and shopping
+
+In **Add Meal → Your recipes & portions**, create a recipe with 1–30 ingredients, quantities, units and a serving yield. Nutrition fields describe the **whole recipe**; enter totals from your labels or an estimate. Ingredient names do not calculate nutrition automatically. Choosing a portion scales those totals into the meal editor; review and tap **Save meal** to log it.
+
+In **Diet Plan → Plan my week & shopping**, choose a week starting date and add recipe servings to each day and meal type. The weekly menu is saved to your account and never automatically logs meals. **Review for today** opens an editable meal draft for today.
+
+The shopping list combines matching ingredient names and units, converting kg to g and l to ml. Cups, tablespoons, teaspoons and pieces remain separate because their weights vary by food. Checkmarks save to your account, and **Download list** creates a plain text copy. Changing an ingredient's total quantity clears its old checkmark. Recipe edits update menu and shopping calculations; existing logged meals retain their saved values. Remove a recipe's menu entries before deleting it.
+
+**Progress** provides 7-day and 30-day views with adjacent-period comparisons. Averages exclude unlogged days, today's partial totals are identified, and missing days stay unknown. Weight charts use only measurements within the selected period; the complete check-in log remains available below.
 
 ## Add NutriLog to your home screen
 
@@ -158,6 +171,7 @@ flowchart LR
 | `storage.js` | Local JSON storage and PostgreSQL transactions |
 | `manifest.webmanifest`, `icons/` | Home-screen identity and app icons |
 | `api/index.js`, `vercel.json`, `scripts/build.js` | Vercel routing and public asset build |
+| `routines.js`, `routines-client.js`, `progress.js` | Guided setup, recipes, weekly menus, shopping and period comparisons |
 | `tests/` | API, storage, calculations and client-flow tests |
 
 <details>
@@ -196,7 +210,9 @@ These tests create and modify tables. Do not point them at production data.
 
 The **Production health** GitHub Actions workflow checks the live app and database every 30 minutes and supports manual runs. Scheduled runs can be delayed by GitHub. Failure notifications follow your GitHub notification settings. Server logs record request IDs, failed/slow responses and timing; client error reports contain fixed error categories and page names only, with per-account limits. No meal text, credentials or exception stacks are sent by client monitoring.
 
-`node scripts/backup.js create /private/path/backup.nlog` creates a consistent encrypted snapshot of app state and AI quota records. Set `DATABASE_URL` and `BACKUP_KEY` (32 random bytes in base64) securely in the environment. Keep the key separate from backup copies. `node scripts/backup.js verify /private/path/backup.nlog` authenticates, decrypts and checks the snapshot; it never overwrites the live database. Backup files and keys belong outside this repository. This manual backup utility is separate from Neon's automatic point-in-time recovery settings. See the release report for what was verified.
+`node scripts/backup.js create /private/path/backup.nlog` creates a consistent encrypted snapshot of app state and AI quota records. Set `DATABASE_URL` and `BACKUP_KEY` (32 random bytes in base64) securely in the environment. Keep the key separate from backup copies. `node scripts/backup.js verify /private/path/backup.nlog` authenticates, decrypts and checks the snapshot; it never overwrites the live database. Backup files and keys belong outside this repository. **Encrypted nightly backup** runs at 21:37 UTC (03:07 Asia/Kolkata) and supports a manual trigger. GitHub may delay scheduled execution. The workflow runs only from `main`, with a `backups` environment restricted to that branch, and uses `BACKUP_DATABASE_URL` (a dedicated login with SELECT access only) and `BACKUP_KEY` as environment secrets. Only an AES-256-GCM encrypted `.nlog` artifact is uploaded, retained for 14 days; keys and plaintext are excluded. Keep a separate private copy of the key. Workflow failure notifications follow your GitHub settings. See [GitHub's schedule documentation](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule) and [artifact retention options](https://github.com/actions/upload-artifact#usage).
+
+To test recovery, set `BACKUP_KEY` and a schema-capable `RESTORE_DATABASE_URL`, then run `node scripts/backup.js drill /private/path/backup.nlog`. It authenticates the backup, restores into a newly named isolated schema, commits and compares state and quota records, then removes that schema. It never overwrites the app's live tables. Backups contain account and meal data, so keep decrypted data out of logs and shared storage. This workflow is separate from Neon's automatic point-in-time recovery settings; the Neon console still requires email verification to inspect that window. See the release report for the completed checks.
 
 ## Deploy to Vercel
 

@@ -71,6 +71,8 @@
       "/api/favorites",
       "/api/weights",
       "/api/templates",
+      "/api/recipes",
+      "/api/setup",
       "/api/ai/weekly",
     ].includes(path.split("?")[0]);
   }

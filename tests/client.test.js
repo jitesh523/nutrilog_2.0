@@ -36,7 +36,7 @@ test('client flow: recovery screen, household portions, edit/reuse, plan wizard,
     const viewport=new w.EventTarget();viewport.height=844;viewport.offsetTop=0;Object.defineProperty(w,'visualViewport',{value:viewport});
     w.scrollTo=(options)=>{if(options?.behavior && !['auto','smooth'].includes(options.behavior))throw new TypeError('Unsupported ScrollBehavior');};w.structuredClone=structuredClone;
     if(token)w.localStorage.setItem('diet-session-token-v1',token);
-    const files=file==='dashboard.html'?['nutrition.js','planner.js','offline.js','app.js','product.js','ai-client.js','upgrades-client.js']:['offline.js','app.js','product.js'];
+    const files=file==='dashboard.html'?['nutrition.js','planner.js','offline.js','app.js','progress.js','product.js','ai-client.js','upgrades-client.js','routines-client.js']:['offline.js','app.js','product.js'];
     w.eval(files.map(f=>fs.readFileSync(path.join(root,f),'utf8')).join('\n')+'\nwindow.__test={get state(){return state;},analyzeMealText,showSection,loadDashboardData,render};');
     return {w,viewport,phoneMedia,q:s=>w.document.querySelector(s),input(s,value){const el=w.document.querySelector(s);el.value=value;el.dispatchEvent(new w.Event('input',{bubbles:true}));},submit(s){w.document.querySelector(s).dispatchEvent(new w.Event('submit',{bubbles:true,cancelable:true}));}};
   }
@@ -58,12 +58,32 @@ test('client flow: recovery screen, household portions, edit/reuse, plan wizard,
     assert.equal(q('.app-section.active').id,`section-${section}`,'Mobile navigation must switch the visible screen');
     assert.equal(q(`.mobile-bottom-nav [data-section="${section}"]`).getAttribute('aria-current'),'page');
   }
+  await eventually(()=>!q('#setup-card').classList.contains('app-hidden'),'Guided setup should be offered');
+  q('#start-setup').click();assert.equal(q('#setup-intent').disabled,false);
+  q('#setup-intent').value='training';q('#setup-next').click();assert.equal(q('#setup-intent').disabled,true);
+  app.input('#setup-name','Test lifter');app.input('#setup-allergies','peanuts');q('#setup-diet').value='vegetarian';q('#setup-next').click();
+  assert.match(q('#setup-review').textContent,/2200 kcal/);app.submit('#setup-form');
+  await eventually(()=>!q('.routine-dialog').open && w.__test.state.profile.displayName==='Test lifter','Setup should save to account');
+  const setup=await (await fetch(base+'/api/setup',{headers:{Authorization:`Bearer ${login.token}`}})).json();assert.equal(setup.setup.intent,'training');
+  q('#new-recipe').click();app.input('#recipe-name','Oats prep');app.input('#recipe-servings','2');
+  app.input('.ingredient-food','Oats');app.input('.ingredient-quantity','200');
+  for(const [key,value] of [['calories','600'],['protein','30'],['carbs','70'],['fat','20']])app.input('#recipe-'+key,value);
+  app.submit('#recipe-form');await eventually(()=>q('.recipe-card'),'Recipe should save and render');
+  app.input('.recipe-card input','1.5');q('.recipe-card .primary-btn').click();
+  await eventually(()=>q('#meal-calories').value==='450','Recipe serving should scale nutrition in an unsaved draft');assert.equal(w.__test.state.meals.length,0);
+  w.__test.showSection('diet-plan');q('#menu-day').value=new Date().toISOString().slice(0,10);app.input('#menu-servings','2');app.submit('#menu-form');
+  await eventually(()=>q('.menu-entry'),'Menu should persist');assert.equal(w.__test.state.meals.length,0,'Menu must not log meals');
+  assert.match(q('#shopping-list').textContent,/200 g/);q('#shopping-list input').click();await eventually(()=>q('#shopping-status').textContent==='Shopping checks saved.','Shopping checkbox should save');
+  const shopping=await (await fetch(base+'/api/shopping?week='+q('#menu-week').value,{headers:{Authorization:`Bearer ${login.token}`}})).json();assert.equal(shopping.items[0].checked,true);
+  w.__test.showSection('progress');q('[data-progress-range="30"]').click();assert.match(q('#progress-stats').textContent,/0\/30 days/);assert.equal(q('[data-progress-range="30"]').getAttribute('aria-pressed'),'true');
+  q('[data-progress-range="7"]').click();w.__test.showSection('add-meal');
   assert.equal(q('#usuals-panel').classList.contains('app-hidden'),true);
   q('[data-open-section="add-meal"]').click();app.input('#meal-description','2 rotis, 1 katori dal, 1 bowl rice');q('#analyze-meal-btn').click();
   await eventually(()=>q('#meal-calories').value==='607','Food estimate should populate macros');assert.ok(q('#meal-name').value);
   q('[data-portion="0.5"]').click();assert.equal(q('#meal-calories').value,'304');assert.equal(w.__test.state.formIngredients[0].grams,40);
   app.submit('#meal-form');await eventually(()=>w.__test.state.meals.length===1,'Meal should persist');
   assert.equal(q('#summary-status').textContent,'Day in progress');assert.equal(q('.ring-val').textContent,'304');
+  await eventually(()=>q('#setup-card').classList.contains('app-hidden'),'A saved setup and first meal complete the guide');
   q('.favorite-btn').click();await eventually(()=>w.__test.state.favorites.length===1,'Favourite should persist');
   q('.edit-btn').click();await eventually(()=>w.__test.state.editingMealId,'Edit should load original meal');
   q('#analyze-meal-btn').click();await eventually(()=>q('#meal-calories').value==='303','Recalculation should preserve the saved half portion');
@@ -78,7 +98,7 @@ test('client flow: recovery screen, household portions, edit/reuse, plan wizard,
   w.__test.showSection('settings');app.input('#profile-name','Test person');app.input('#profile-allergies','peanuts');q('#profile-diet').value='vegetarian';app.submit('#profile-form');
   await eventually(()=>q('#profile-feedback').textContent.includes('saved'),'Preferences should save');assert.equal(w.__test.state.profile.allergies,'peanuts');
   w.__test.showSection('progress');app.input('#weight-kg','75.2');app.submit('#weight-form');await eventually(()=>w.__test.state.weights.length===1,'Weight should save');
-  app.input('#weight-date','2020-01-01');app.input('#weight-kg','78');app.submit('#weight-form');await eventually(()=>w.__test.state.weights.length===2,'Second check-in should save');assert.ok(q('.weight-chart'));
+  app.input('#weight-date',require('../progress').shift(new Date().toISOString().slice(0,10),-2));app.input('#weight-kg','78');app.submit('#weight-form');await eventually(()=>w.__test.state.weights.length===2,'Second check-in should save');assert.ok(q('.weight-chart'));
   assert.match(q('#progress-stats').textContent,/1\/7 days/);assert.match(q('#weekly-chart').textContent,/Not logged/);
   await w.__test.loadDashboardData();w.__test.render();assert.equal(w.__test.state.profile.displayName,'Test person');assert.equal(w.__test.state.plan.goal,'cutting');
   w.__test.showSection('add-meal');app.input('#template-name','Training day');q('#save-template').click();

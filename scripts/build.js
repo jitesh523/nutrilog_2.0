@@ -5,7 +5,7 @@ const output = path.join(root, "public");
 const files = [
   "index.html", "dashboard.html", "transformation.html", "styles.css", "app.js",
   "nutrition.js", "product.js", "ai-client.js", "bg-images.js", "exerciser.js", "motion.js", "particles.js", "planner.js", "stars.js",
-  "offline.js", "sw.js", "upgrades-client.js", "manifest.webmanifest", "icons/icon.svg", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png",
+  "offline.js", "sw.js", "upgrades-client.js", "routines-client.js", "progress.js", "manifest.webmanifest", "icons/icon.svg", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png",
 ];
 fs.mkdirSync(output, { recursive: true });
 for (const file of files) {

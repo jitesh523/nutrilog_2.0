@@ -2147,3 +2147,45 @@ button:disabled { cursor:not-allowed; opacity:.5; }
 .repeat-panel,.photo-panel,.weekly-review{margin-block:18px}.repeat-controls{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:end}.repeat-controls label,.photo-panel>label{display:grid;gap:8px}.photo-panel>label{margin:16px 0}.photo-picker{padding:16px;border:1px dashed var(--highlight);border-radius:14px}.photo-preview{width:100%;max-height:260px;object-fit:contain;border-radius:16px;background:#111}.review-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.review-card{padding:16px;border:1px solid rgba(196,255,74,.18);border-radius:16px;background:rgba(196,255,74,.035)}.review-card h3{color:var(--highlight);margin-top:0}.review-card p{line-height:1.6;margin-bottom:0}.offline-status{border-color:#e4b94d;margin:16px}.offline-status .quick-item{gap:12px}.upgrade-dialog{box-sizing:border-box;width:min(740px,calc(100% - 24px));max-height:calc(100dvh - 32px);overflow:auto;background:#191c18;color:#f0f1e9;border:1px solid #49523b;border-radius:22px;padding:24px;overscroll-behavior:contain}.upgrade-dialog::backdrop{background:rgba(0,0,0,.78)}.upgrade-dialog .panel-heading{align-items:start}.upgrade-dialog button{min-height:44px}.estimate-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;border:1px solid #3b4234;border-radius:14px;padding:14px;margin-bottom:14px}.estimate-row label{display:grid;gap:6px;font-size:.8rem}.estimate-row label:first-child{grid-column:span 2}.estimate-row input{min-width:0;width:100%;box-sizing:border-box;font-size:16px}.streaming-reply{opacity:.92}.streaming-reply::after{content:'▍';color:var(--highlight);animation:stream-blink 1s steps(2) infinite}.chat-draft-btn{margin-top:8px;font-size:.8rem;min-height:40px}@keyframes stream-blink{50%{opacity:0}}@media(max-width:600px){.repeat-controls,.review-grid{grid-template-columns:1fr}.repeat-controls button{width:100%;min-height:44px}.upgrade-dialog{padding:16px}.estimate-row{grid-template-columns:repeat(2,minmax(0,1fr))}.estimate-row label:first-child{grid-column:span 2}.offline-status{margin:12px 0}.photo-panel input{font-size:16px}.quick-item{flex-wrap:wrap}}@media(prefers-reduced-motion:reduce){.streaming-reply::after{animation:none}}
 .repeat-controls select{min-height:44px;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:10px;font:inherit;width:100%}
 .upgrade-summary{cursor:pointer;font-weight:700;min-height:44px;display:list-item;align-content:center;color:var(--highlight);padding:8px 4px}.repeat-panel:has(details:not([open])),.photo-panel:has(details:not([open])){padding-block:12px}.upgrade-summary:focus-visible{outline:2px solid var(--highlight);outline-offset:4px;border-radius:8px}
+
+/* Setup, recipes and weekly prep share the existing training-room palette. */
+.setup-card { margin-block:20px; border-color:#617343; background:linear-gradient(120deg,#242d1c,#171b14); }
+.setup-milestones { display:flex; gap:22px; flex-wrap:wrap; padding:0; list-style:none; color:var(--muted); font-size:.83rem; }
+.setup-milestones .complete { color:var(--highlight); }
+.routine-dialog form,.routine-dialog fieldset { display:grid; gap:16px; }
+.routine-dialog fieldset { border:0; margin:0; padding:0; min-width:0; }
+.routine-dialog fieldset[hidden],.routine-dialog button[hidden] { display:none; }
+.routine-dialog label,.recipe-card label,.menu-form label,.week-picker label { display:grid; gap:7px; font-size:.85rem; min-width:0; }
+.routine-fields { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+.routine-dialog input,.routine-dialog select,.routine-dialog textarea,.menu-form input,.menu-form select,.week-picker input,.recipe-card input { box-sizing:border-box; width:100%; min-width:0; font-size:16px; }
+.routine-footer { justify-content:flex-end; padding-top:12px; }
+.setup-finish { padding:20px; border:1px solid #43532f; border-radius:16px; background:#242e1b; line-height:1.6; }
+.setup-finish>span { font-size:2rem; color:var(--highlight); }
+.recipe-panel { margin-block:18px; }.recipe-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+.recipe-card,.menu-day { padding:18px; border:1px solid var(--border); border-radius:16px; min-width:0; background:#191e15; overflow-wrap:anywhere; }
+.recipe-card h3,.menu-day h3 { margin-top:0; }.recipe-card .button-row { margin-top:14px; }
+.recipe-ingredient-row { display:grid; grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1fr) auto; gap:10px; align-items:end; padding:14px; border:1px solid var(--border); border-radius:14px; margin-bottom:12px; }
+.menu-panel { margin-block:24px; }.menu-form { display:grid; grid-template-columns:2fr 1.5fr 1fr .7fr auto; gap:12px; align-items:end; margin:20px 0; }.menu-form button { min-height:46px; }
+.week-picker { display:flex; gap:10px; align-items:end; max-width:440px; }.week-picker label { flex:1; }.week-picker button { min-width:44px; min-height:46px; }
+.menu-days { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; }.menu-entry { padding-top:14px; margin-top:12px; border-top:1px solid var(--border); }.menu-entry .button-row { gap:5px; }.menu-entry button { font-size:.75rem; min-height:44px; }
+.shopping-heading { display:flex; justify-content:space-between; align-items:start; gap:18px; margin-top:26px; }.shopping-heading h3 { margin-top:0; }.shopping-heading button { flex:none; }
+.shopping-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }.shopping-item { display:flex; align-items:center; gap:12px; padding:12px; border:1px solid var(--border); border-radius:12px; min-height:48px; overflow-wrap:anywhere; }.shopping-item input { width:22px; height:22px; flex:none; accent-color:var(--highlight); }.shopping-item:has(input:checked) span { text-decoration:line-through; color:var(--muted); }
+.progress-toolbar { margin-bottom:20px; }.progress-toolbar [aria-pressed="true"] { color:#11170d; background:var(--highlight); border-color:var(--highlight); }.progress-toolbar button { min-height:44px; }.chart-scroll { overflow-x:auto; overscroll-behavior-x:contain; scrollbar-width:thin; padding-bottom:10px; }.chart-scroll .chart-col { min-width:32px; }.chart-scroll:focus-visible { outline:2px solid var(--highlight); outline-offset:4px; }
+.chat-jump { align-self:center; flex:none; min-height:44px; padding:8px 18px; font-size:.8rem; }
+:root { --routine-viewport-height:100dvh; }
+@media(max-width:1000px) { .menu-form { grid-template-columns:repeat(2,minmax(0,1fr)); }.menu-form>label:first-child { grid-column:1 / -1; }.menu-days { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(max-width:600px) {
+  .routine-dialog { max-height:calc(var(--routine-viewport-height,100dvh) - 24px); padding:16px; }
+  .routine-dialog .panel-heading { align-items:start; gap:10px; }.routine-dialog .panel-heading>button { flex:none; min-width:44px; }
+  .routine-dialog h2 { font-size:1.45rem; }.routine-dialog button,.recipe-panel button,.shopping-heading button { min-height:44px; }
+  .recipe-grid,.shopping-list { grid-template-columns:1fr; }.recipe-panel .panel-heading,.setup-card .panel-heading { flex-wrap:wrap; }.setup-card .panel-heading>button { width:100%; }
+  .recipe-ingredient-row { grid-template-columns:repeat(2,minmax(0,1fr)); }.recipe-ingredient-row label:first-child { grid-column:1 / -1; }.recipe-ingredient-row button { grid-column:1 / -1; text-align:left; }
+  .routine-footer { position:sticky; bottom:0; background:#191c18; padding:12px 0 max(4px,env(safe-area-inset-bottom)); }.routine-footer button { flex:1; }
+  .menu-days { grid-template-columns:1fr; }.shopping-heading { flex-direction:column; }.menu-form>button { grid-column:1 / -1; }.menu-panel .panel-heading { flex-wrap:wrap; }
+  .dashboard-page input,.dashboard-page select,.dashboard-page textarea { font-size:16px; }.dashboard-page .app-shell { padding-bottom:calc(104px + env(safe-area-inset-bottom)); }
+  .chat-message { overflow-anchor:none; }.chat-jump { min-height:44px; }
+}
+@media(prefers-reduced-motion:reduce) { .dashboard-page *, .dashboard-page *::before, .dashboard-page *::after { scroll-behavior:auto !important; } }
+.routine-dialog .panel-heading { display:flex; flex-direction:row; flex-wrap:nowrap; justify-content:space-between; gap:12px; }
+.routine-dialog .panel-heading>div,.routine-dialog .panel-heading>h2 { flex:1; min-width:0; }
+.routine-dialog .panel-heading>button { flex:none; min-width:44px; }

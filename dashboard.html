@@ -2,10 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>NutriLog — Dashboard</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
     <link rel="stylesheet" href="./styles.css" />
     <link rel="manifest" href="/manifest.webmanifest" />
   <meta name="theme-color" content="#10120f" />
@@ -259,6 +259,7 @@
           <h1>See the work add up.</h1><p class="hero-description">Your meals, check-ins, and consistency. One day at a time.</p>
         </section>
 
+        <div class="progress-toolbar"><div class="button-row" role="group" aria-label="Progress period"><button class="ghost-btn" type="button" data-progress-range="7" aria-pressed="true">7 days</button><button class="ghost-btn" type="button" data-progress-range="30" aria-pressed="false">30 days</button></div><p id="progress-comparison" class="helper-copy"></p></div>
         <div id="progress-stats" class="stats-row"></div>
         <section class="panel" id="weekly-chart"></section>
         <section class="panel"><div class="panel-heading"><div><h2>Weight check-ins</h2><p>Record measurements when you choose. Your actual trend is separate from plan estimates.</p></div></div>
@@ -420,9 +421,11 @@
     <script src="./planner.js"></script>
     <script src="./offline.js"></script>
     <script src="./app.js"></script>
+    <script src="./progress.js"></script>
     <script src="./product.js"></script>
     <script src="./ai-client.js"></script>
     <script src="./upgrades-client.js"></script>
+    <script src="./routines-client.js"></script>
 
   </body>
 </html>

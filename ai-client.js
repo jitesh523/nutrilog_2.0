@@ -7,6 +7,15 @@
   const status = document.querySelector("#chat-status");
   const recovery = document.querySelector("#chat-recovery");
   const clearConfirm = document.querySelector("#chat-clear-confirm");
+  const jumpLatest = document.createElement('button');
+  jumpLatest.type = 'button'; jumpLatest.className = 'ghost-btn chat-jump app-hidden'; jumpLatest.textContent = '↓ Latest reply';
+  messages.after(jumpLatest);
+  let followOutput = true;
+  messages.addEventListener('scroll', () => {
+    followOutput = messages.scrollHeight - messages.scrollTop - messages.clientHeight < 80;
+    if (followOutput) jumpLatest.classList.add('app-hidden');
+  });
+  jumpLatest.onclick = () => { followOutput = true; messages.scrollTop = messages.scrollHeight; jumpLatest.classList.add('app-hidden'); };
   const widget = document.querySelector("#coach-widget");
   const launcher = document.querySelector("#coach-launcher");
   let returnFocus = null;
@@ -139,6 +148,7 @@
   }
 
   function renderChat() {
+    const savedScroll = messages.scrollTop;
     messages.replaceChildren();
     const turns = [...chat.messages, ...(optimistic ? [optimistic] : [])];
     if (!turns.length) {
@@ -230,11 +240,13 @@
           ? "Open nutrition coach chat. New reply."
           : "Open nutrition coach chat",
       );
-    messages.scrollTop = messages.scrollHeight;
+    messages.scrollTop = followOutput ? messages.scrollHeight : savedScroll;
+    jumpLatest.classList.toggle('app-hidden', followOutput || widget.classList.contains('app-hidden'));
     sizeComposer();
   }
 
   window.resetAiChat = () => {
+    followOutput = true;
     generation += 1;
     owner = null;
     chat = { id: null, messages: [] };
@@ -364,6 +376,7 @@
     failed = null;
     partialReply = "";
     pending = true;
+    followOutput = true;
     optimistic = { role: "user", content, date: request.date };
     status.textContent = "Reviewing your message and current meals…";
     renderChat();

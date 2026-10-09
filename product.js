@@ -92,35 +92,37 @@ function setPortion(multiplier) {
   analysisFeedback.textContent=`${multiplier} × your entered portion. Nutrition and ingredient amounts have been scaled together. Review before saving.`;
   document.querySelectorAll('[data-portion]').forEach(b=>b.setAttribute('aria-pressed',String(Number(b.dataset.portion)===multiplier)));
 }
-function weekDays() {
-  const days=[]; for(let i=6;i>=0;i--) {
-    const d=new Date(`${getTodayDateKey()}T12:00:00`); d.setDate(d.getDate()-i);
-    const key=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-    const history=state.history.find(h=>h.date===key);
-    days.push({key,label:i===0?'Today':d.toLocaleDateString(undefined,{weekday:'short'}),history,logged:Boolean(history?.mealCount)});
-  } return days;
+function weekDays(length=7) {
+  return ProgressMetrics.period(state.history,getTodayDateKey(),length).days.map(d=>({...d,label:d.key===getTodayDateKey()?'Today':new Date(d.key+'T12:00:00').toLocaleDateString(undefined,{weekday:'short'})}));
 }
 function renderNutritionWeek() {
-  const el=$product('#weekly-chart'), days=weekDays(); if(!el) return;
+  const el=$product('#weekly-chart'), length=state.progressRange || 7, days=weekDays(length); if(!el) return;
   const max=Math.max(state.goals.calories,...days.map(d=>d.history?.totals.calories || 0),...days.map(d=>d.history?.goals.calories || 0),1),height=110;
-  el.innerHTML=`<div class="panel-heading"><div><h2>Last 7 days</h2><p>Logged calories and each day's saved target. A dash means not logged.</p></div></div><div class="chart-bars">${days.map(day=>{
+  el.innerHTML=`<div class="panel-heading"><div><h2>Last ${length} days</h2><p>Logged calories and each day's saved target. Today may still be incomplete.</p></div></div><div class="chart-scroll" tabindex="0" role="region" aria-label="Daily nutrition chart; scroll for more days"><div class="chart-bars" style="min-width:${length===30?1200:0}px">${days.map(day=>{
     const calories=day.history?.totals.calories || 0, goal=day.history?.goals.calories ?? state.goals.calories;
-    return `<div class="chart-col"><div class="chart-bar-wrap" style="height:${height}px">${day.logged ? `<div class="chart-goal-line" style="bottom:${goal/max*height}px"></div><div class="chart-bar" style="height:${Math.max(calories/max*height,3)}px"></div>` : '<div class="chart-missing">—</div>'}</div><p class="chart-label">${day.label}</p><p class="chart-val">${day.logged ? Math.round(calories) : 'Not logged'}</p></div>`;
-  }).join('')}</div><div class="chart-legend"><span><span class="legend-dot" style="background:var(--highlight)"></span>Logged calories</span><span>Dashed line: daily target</span></div>`;
+    const label=length===7?day.label:day.key.slice(5);
+    return `<div class="chart-col" aria-label="${day.key}: ${day.logged ? Math.round(calories)+' calories; target '+Math.round(goal) : 'Not logged'}"><div class="chart-bar-wrap" style="height:${height}px">${day.logged ? `<div class="chart-goal-line" style="bottom:${goal/max*height}px"></div><div class="chart-bar" style="height:${Math.max(calories/max*height,3)}px"></div>` : '<div class="chart-missing">—</div>'}</div><p class="chart-label">${label}</p><p class="chart-val">${day.logged ? Math.round(calories) : 'Not logged'}</p></div>`;
+  }).join('')}</div></div><div class="chart-legend"><span><span class="legend-dot" style="background:var(--highlight)"></span>Logged calories</span><span>Dashed line: saved daily target · Missing days: unknown</span></div>`;
 }
 function renderProgress() {
-  const logged=weekDays().filter(d=>d.logged); const average=(key)=>logged.length ? formatNumber(logged.reduce((sum,d)=>sum+d.history.totals[key],0)/logged.length) : '—';
-  $product('#progress-stats').innerHTML=`<div class="progress-stat"><span>Logging consistency</span><strong>${logged.length}/7 days</strong><span>Last 7 days</span></div><div class="progress-stat"><span>Average calories</span><strong>${average('calories')}</strong><span>Per logged day</span></div><div class="progress-stat"><span>Average protein</span><strong>${average('protein')}${logged.length?'g':''}</strong><span>Per logged day</span></div>`;
-  const weights=state.weights, trend=$product('#weight-trend'), log=$product('#weight-log');
-  if(!weights.length) { trend.innerHTML='<p class="helper-copy">Your first check-in starts the trend. At least two measurements are needed to draw a line.</p>'; log.replaceChildren(); return; }
-  const latest=weights[weights.length-1], first=weights[0], change=+(latest.kg-first.kg).toFixed(1);
-  trend.innerHTML=`<p><strong>${latest.kg} kg</strong> <span class="helper-copy">Latest · ${formatDate(latest.date)}${weights.length>1 ? ` · ${change>0?'+':''}${change} kg since ${formatDate(first.date)}` : ''}</span></p>`;
-  if(weights.length>1) {
-    const points=weights.slice(-60), start=Date.parse(points[0].date), end=Date.parse(points[points.length-1].date), min=Math.min(...points.map(w=>w.kg)), max=Math.max(...points.map(w=>w.kg)), range=Math.max(max-min,1);
-    const coords=points.map(w=>[40+(Date.parse(w.date)-start)/Math.max(1,end-start)*620,135-(w.kg-min)/range*100]);
-    trend.insertAdjacentHTML('beforeend',`<svg class="weight-chart" viewBox="0 0 700 180" role="img" aria-label="Weight trend across ${points.length} measurements, from ${points[0].kg} to ${latest.kg} kilograms"><line x1="40" y1="150" x2="660" y2="150" stroke="#494056"/><polyline points="${coords.map(p=>p.join(',')).join(' ')}" fill="none" stroke="currentColor" stroke-width="3"/>${coords.map(([x,y],i)=>`<circle cx="${x}" cy="${y}" r="4" fill="currentColor"><title>${points[i].date}: ${points[i].kg} kg</title></circle>`).join('')}<text x="40" y="174" fill="#b2adc3" font-size="12">${points[0].date}</text><text x="660" y="174" text-anchor="end" fill="#b2adc3" font-size="12">${latest.date}</text><text x="4" y="38" fill="#b2adc3" font-size="11">${max}</text><text x="4" y="139" fill="#b2adc3" font-size="11">${min}</text></svg><p class="helper-copy">Measurements connected by date; the line doesn't predict future weight. Showing the latest ${points.length} check-ins.</p>`);
+  const length=state.progressRange || 7, {current,previous,delta}=ProgressMetrics.compare(state.history,getTodayDateKey(),length);
+  const average=k=>current.averages[k]===null ? '—' : formatNumber(current.averages[k]);
+  $product('#progress-stats').innerHTML=`<div class="progress-stat"><span>Logging consistency</span><strong>${current.loggedDays}/${length} days</strong><span>Last ${length} days</span></div><div class="progress-stat"><span>Average calories</span><strong>${average('calories')}</strong><span>Per logged day</span></div><div class="progress-stat"><span>Average protein</span><strong>${average('protein')}${current.loggedDays?'g':''}</strong><span>Per logged day</span></div>`;
+  const comparison=$product('#progress-comparison');
+  if(comparison) comparison.textContent=previous.loggedDays && current.loggedDays ? `Compared with the previous ${length} days (${previous.loggedDays} logged): ${delta.calories>=0?'+':''}${formatNumber(delta.calories)} kcal and ${delta.protein>=0?'+':''}${formatNumber(delta.protein)}g protein per logged day. Different logging coverage can affect this comparison; today's totals may be incomplete.` : `A comparison needs at least one logged day in both periods. This period: ${current.loggedDays}/${length}; previous period: ${previous.loggedDays}/${length}. Missing days are unknown, not zero.`;
+  document.querySelectorAll('[data-progress-range]').forEach(b=>b.setAttribute('aria-pressed',String(Number(b.dataset.progressRange)===length)));
+  const weights=state.weights.filter(w=>w.date>=current.start && w.date<=current.end), trend=$product('#weight-trend'), log=$product('#weight-log');
+  if(!weights.length) { trend.innerHTML=`<p class="helper-copy">No check-ins in the last ${length} days. Your first check-in starts the trend; at least two measurements are needed to draw a line.</p>`; }
+  else {
+    const latest=weights[weights.length-1], first=weights[0], change=+(latest.kg-first.kg).toFixed(1);
+    trend.innerHTML=`<p><strong>${latest.kg} kg</strong> <span class="helper-copy">Latest in this period · ${formatDate(latest.date)}${weights.length>1 ? ` · ${change>0?'+':''}${change} kg since ${formatDate(first.date)}` : ''}</span></p>`;
+    if(weights.length>1) {
+      const points=weights, start=Date.parse(points[0].date), end=Date.parse(points[points.length-1].date), min=Math.min(...points.map(w=>w.kg)), max=Math.max(...points.map(w=>w.kg)), range=Math.max(max-min,1);
+      const coords=points.map(w=>[40+(Date.parse(w.date)-start)/Math.max(1,end-start)*620,135-(w.kg-min)/range*100]);
+      trend.insertAdjacentHTML('beforeend',`<svg class="weight-chart" viewBox="0 0 700 180" role="img" aria-label="Weight trend across ${points.length} measurements, from ${points[0].kg} to ${latest.kg} kilograms"><line x1="40" y1="150" x2="660" y2="150" stroke="#494056"/><polyline points="${coords.map(p=>p.join(',')).join(' ')}" fill="none" stroke="currentColor" stroke-width="3"/>${coords.map(([x,y],i)=>`<circle cx="${x}" cy="${y}" r="4" fill="currentColor"><title>${points[i].date}: ${points[i].kg} kg</title></circle>`).join('')}<text x="40" y="174" fill="#b2adc3" font-size="12">${points[0].date}</text><text x="660" y="174" text-anchor="end" fill="#b2adc3" font-size="12">${latest.date}</text><text x="4" y="38" fill="#b2adc3" font-size="11">${max}</text><text x="4" y="139" fill="#b2adc3" font-size="11">${min}</text></svg><p class="helper-copy">Actual measurements connected by date; the line doesn't predict future weight.</p>`);
+    }
   }
-  log.replaceChildren(); [...weights].reverse().forEach(w=>{
+  log.replaceChildren(); [...state.weights].reverse().forEach(w=>{
     const row=document.createElement('div'); row.className='weight-log-row'; const copy=document.createElement('span'); copy.textContent=`${formatDate(w.date)} · ${w.kg} kg`;
     const actions=document.createElement('div'); actions.className='button-row'; const edit=document.createElement('button'); edit.type='button'; edit.className='text-btn'; edit.textContent='Edit'; edit.onclick=()=>{$product('#weight-date').value=w.date;$product('#weight-kg').value=w.kg;$product('#weight-kg').focus();};
     const remove=document.createElement('button');remove.type='button';remove.className='text-btn';remove.textContent='Remove';remove.onclick=async()=>{try{await apiRequest(`/api/weights/${w.date}`,{method:'DELETE'});await loadProductData();render();}catch(error){showToast(error.message);}};
