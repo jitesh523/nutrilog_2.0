@@ -1,49 +1,47 @@
-# NutriLog upgrade release
+# NutriLog routines and progress release
 
 - Live app: https://nutrilog-diet-ai.vercel.app/
 - Repository: https://github.com/jitesh523/nutrilog_2.0
-- Application commit: `19cb8f7`
-- Deployment: `dpl_13YYYXjtv9t7mbwUviJcwnPXffRC`
-- Immutable URL: https://nutrilog-diet-mh1jmyvzb-jitesh523s-projects.vercel.app
+- Application commit: `b811c2f`
+- Deployment: `dpl_9UPEw4n3U2MSeQpduLQVu8vKvvWa`
+- Immutable URL: https://nutrilog-diet-kad4ftvb1-jitesh523s-projects.vercel.app
 - Environment: production, `jitesh523s-projects` / `nutrilog-diet-ai`
-- Status: READY, promoted after staged verification
+- Status: READY; promoted after hosted verification
 - Released: 2026-10-09 (Asia/Kolkata)
 
 ## What changed
 
-Add Meal now supports previewing and copying an entire logged day, account-owned day templates, and photo estimates. Repeat and photo tools expand on demand to keep the phone screen compact. Photo estimates expose editable foods, grams and macros; changing portions scales nutrition. Applying a photo or coach suggestion opens the meal editor and never saves a meal automatically.
+Guided setup saves a chosen focus, editable targets and food preferences together. A dashboard checklist leads into logging the first meal, and Settings can reopen setup. Changing numerical targets clears the old calculated plan; saving unchanged targets preserves it. Focus labels do not invent personalized calorie targets. Late initial responses cannot overwrite a newly saved setup or recipe list.
 
-The app now caches its public shell with a service worker. Private API snapshots and a durable meal outbox use IndexedDB, scoped to the authenticated account. Queued meals retain their original date for up to 30 days and stay separate from saved totals. Reconnecting verifies the session before upload. Each new meal gets a fresh request ID; a retry retains that ID. Server receipts prevent duplicate saves and deleted-meal resurrection. IndexedDB queue changes are atomic, and late responses cannot cross account cache boundaries. Logout clears cached views and keeps pending meals for the same account; account deletion clears its local outbox.
+Add Meal has a saved recipe library with ingredients, recipe yield and whole-recipe nutrition. Selecting portions scales an editable meal draft. Diet Plan has a weekly menu and an ingredient shopping list with persisted checks and text export. Planning and reviewing portions do not log meals automatically. Recipe access, menus, setup and shopping state belong to the signed-in account and are included in account exports/deletion. Retried menu requests are idempotent. Changing ingredient quantities invalidates old checkmarks, and stale shopping updates are rejected.
 
-Coach replies stream from Groq and persist only after generation and database commit. Failed or interrupted replies retain the user’s message for retry. Follow-up memory, account isolation and concurrent-clear protections remain intact. Each saved assistant message offers an editable meal draft. Progress includes a saved AI weekly review using only logged days, their saved targets and preferences. Missing days remain unknown and source changes invalidate an old review.
+Progress switches between 7 and 30 days and compares the selected period with the immediately preceding period. Averages use only logged days, missing days remain unknown, and empty comparisons show no invented change. Weight charts follow the selected period.
 
-Groq vision uses `qwen/qwen3.8-27b` by default. Photo completion requests use a 900-token budget to fit the configured account’s provider limits. Images are resized and re-encoded in the browser, explicitly submitted, validated on the server, and kept out of database/offline storage.
+Phone changes include keyboard-aware setup dialogs, safe-area spacing, 44px controls, 16px form text and compact recipe/menu layouts. The coach preserves reading position while replies stream and provides a Latest reply button. Vertical scrolling cannot trigger meal deletion swipes; pull-to-refresh ignores dialogs and interactive controls. Web fonts load without blocking the first paint. The service worker shell includes the new public scripts; setup and recipes can use existing account-scoped offline snapshots.
 
 ## Verification
 
-**Story:** A signed-in person can repeat a day, log during an outage and reconnect, discuss meals with a streaming coach, review a suggested meal draft, generate a weekly review and confirm/edit a photo estimate before saving.
+**Story:** A signed-in person completes setup, saves a recipe, reviews a scaled portion, plans meals without logging them, checks their shopping list and compares logged progress across periods.
 
-- **Automated checks:** The full isolated PostgreSQL/API run passed 28 tests. After the browser found an inherited request-ID issue in reused meals, the fix passed client/offline regression checks and the final local suite passed 23 tests with one optional PostgreSQL-only test skipped in that local invocation. Earlier PostgreSQL checks covered storage transactions, quotas, authentication, plans, chat and every new API. All test schemas were removed.
-- **Browser:** Safari desktop and 390 × 844 responsive viewport checks covered navigation, day-copy review/save and the phone coach composer with a real Groq reply. With the local server stopped, a reused meal stayed in the device outbox across a full reload. Restoring the server and retrying uploaded it once, cleared the outbox and updated totals. Expired-session handling preserved pending meals, and another account could not see the first account’s outbox. A physical phone keyboard and OS installation were not tested.
-- **AI drafts:** Client checks verified that changing grams scales item macros and applying the draft only fills the editor. API checks verified that estimation does not add a meal, and account exports/deletion include the new account-owned data.
-- **Exact staged deployment:** Twelve core assets matched local bytes; health returned 200 and backend source/credentials returned 404. Hosted template ownership, day copy, original-date offline replay and idempotent retries passed.
-- **Real hosted AI:** Weekly review persisted for two logged days. SSE deltas arrived before the final saved event (244 ms observed gap). A follow-up recalled the nickname from the previous turn. A coach suggestion produced a four-item editable meal draft without changing the meal log. Vision correctly returned no foods for a brand icon; recognizable-food estimates and portion editing were checked with controlled provider fixtures. Nutritional accuracy was not independently measured.
-- **Production promotion:** Live dashboard, upgraded scripts, service worker and manifest matched the tested files. Database health passed and `/sw.js` returned `Cache-Control: no-cache`.
-- **Build:** Production build copied 22 public assets. JavaScript syntax, whitespace checks and npm audit passed (zero reported vulnerabilities at install).
-- **Publication:** Pushed to `jitesh523/nutrilog_2.0`; GitHub’s contributor API returned only `jitesh523`.
+- Full isolated PostgreSQL/API suite: **33/33 passed**, covering storage, authentication, plans, chat, account ownership and routine APIs. All temporary verification schemas were removed.
+- Final client/offline/routines regressions: **7/7 passed**, including actual setup and recipe forms, editable portions, menu/shopping interactions, period switching, offline account boundaries and stale-response protections.
+- Safari at **390 × 844**: setup steps/save and dashboard loading were checked. Recipe layout and native field validation were inspected. A fresh local origin loaded the completed dashboard with no console errors. Remaining browser rechecks stopped when the Mac locked. A physical phone keyboard, camera and OS installation were not tested.
+- Build copied **24 public assets**. JavaScript syntax, whitespace and tracked-source credential scans passed.
+- Exact staged verification passed for eleven changed/core assets against local bytes, health/database access, authenticated setup/recipes/menu/shopping, idempotent retries, account isolation, stale-list rejection and exports. Disposable release accounts were removed after the checks.
+- Groq integration is unchanged from the preceding release; its real streaming, follow-up and editable draft checks remain recorded in Git history.
 
-## Monitoring
+- Promotion: live dashboard, routines, progress, styles, coach, service worker and manifest matched the tested release. Database health returned 200; the service worker returned `Cache-Control: no-cache`. The staged deployment HTTP-500 log scan returned no failures.
 
-Server logs record request IDs, failed/slow responses and duration. Client reports contain fixed error categories and page names, with per-account limits; no entered text or exception stacks are sent. The staged deployment’s HTTP-500 scan returned no failures.
+## Scheduled backups and restore drill
 
-The Production health GitHub Actions workflow checks the live app/database every 30 minutes, with retries and a manual trigger. Alerts follow the owner’s GitHub notification settings. Scheduled execution can be delayed by GitHub. Manual release verification run: https://github.com/jitesh523/nutrilog_2.0/actions/runs/37828806134
+The **Encrypted nightly backup** GitHub Actions workflow runs at **21:37 UTC / 03:07 IST**, with a manual trigger and **14-day artifact retention**. GitHub may delay scheduled runs. A dedicated database role has read access to app-state and AI-usage tables, with no update/delete/create privileges. Credentials and the AES-256-GCM key are protected environment secrets restricted to the main branch. Only encrypted `.nlog` snapshots are uploaded; temporary runner files are removed.
 
-## Backups and recovery
+First successful workflow: https://github.com/jitesh523/nutrilog_2.0/actions/runs/37957948620
 
-The existing Neon database is connected and available on its Free plan. A consistent live snapshot of app state and quota records was encrypted with AES-256-GCM, written outside the repository with private file permissions, decrypted and compared with the captured snapshot. The key is stored separately from the backup. The backup utility’s tests reject the wrong key and tampered ciphertext. `scripts/backup.js verify` checks decryption and structure without writing to the database.
+Its downloaded encrypted artifact passed authentication, decryption and structural verification. An actual restore drill created a new isolated database schema, restored app state and quota rows, compared them exactly, then removed that schema. Live application tables were not replaced. A separate local snapshot also passed this drill. The key is stored separately from local backups, outside the repository. Nightly runs create and verify snapshots; drills are an explicit maintenance command, not part of every nightly run.
 
-This is a verified manual snapshot, not a scheduled backup service or a completed database restore drill. Neon’s automatic point-in-time recovery window could not be inspected: its console requires email verification to link the existing Vercel Marketplace identity. No provider plan, billing or recovery settings were changed. Complete that verification before relying on a specific automatic recovery window.
+Neon point-in-time recovery settings still require console email verification and were not changed. The workflow does not establish a specific provider recovery window. Recovery codes remain the password-reset method.
 
-## Existing behavior retained
+## Monitoring and publication
 
-Recovery codes remain the password-reset method; email resets are not configured. Existing meals, accounts, saved goals, plans, preferences, weight check-ins and chat remain in the same persistent database. Keys stay server-side.
+The existing Production health workflow checks app/database health every 30 minutes. Runtime logs retain request status/duration; entered text and credentials are excluded from client reports. Source is published to `jitesh523/nutrilog_2.0`; GitHub's contributor API returned only `jitesh523`.
